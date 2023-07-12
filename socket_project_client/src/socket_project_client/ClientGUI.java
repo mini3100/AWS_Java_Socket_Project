@@ -5,11 +5,28 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import java.awt.CardLayout;
+import java.awt.Color;
+import javax.swing.JLabel;
+import java.awt.Font;
+import javax.swing.JScrollPane;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 public class ClientGUI extends JFrame {
 
-	private JPanel contentPane;
-
+	//mainCard
+	private CardLayout mainCardLayout;
+	private JPanel mainCardPanel;
+	
+	//chattingRoomList
+	private JPanel chattingRoomListPanel;
+	
+	//chattingRoom
+	private JPanel chattingRoomPanel;
+	private JTextField messageTextField;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -30,12 +47,82 @@ public class ClientGUI extends JFrame {
 	 * Create the frame.
 	 */
 	public ClientGUI() {
+		setTitle("Talk & Talk");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-		setContentPane(contentPane);
+		setBounds(100, 100, 500, 370);
+		
+		// << mainCard >>
+		mainCardLayout = new CardLayout();
+		mainCardPanel = new JPanel();
+		mainCardPanel.setLayout(mainCardLayout);
+		setContentPane(mainCardPanel);
+		
+		// << chattingRoomList >>
+		chattingRoomListPanel = new JPanel();
+		chattingRoomListPanel.setBackground(new Color(227, 243, 253));
+		chattingRoomListPanel.setLayout(null);
+		mainCardPanel.add(chattingRoomListPanel, "chattingRoomListPanel");
+		
+		JLabel titleLabel = new JLabel("Talk & Talk");
+		titleLabel.setFont(new Font("맑은 고딕", Font.BOLD, 18));
+		titleLabel.setBounds(12, 12, 122, 27);
+		chattingRoomListPanel.add(titleLabel);
+		
+		JScrollPane roomListScrollPanel = new JScrollPane();
+		roomListScrollPanel.setBounds(12, 49, 462, 274);
+		chattingRoomListPanel.add(roomListScrollPanel);
+		
+		JButton createRoomButton = new JButton("방 생성");
+		createRoomButton.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
+		createRoomButton.setBounds(369, 13, 105, 27);
+		chattingRoomListPanel.add(createRoomButton);
+		
+		JLabel userNameLabel = new JLabel("userName");
+		userNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		userNameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
+		userNameLabel.setBounds(146, 12, 211, 27);
+		chattingRoomListPanel.add(userNameLabel);
+		
+		// << chattingRoom >>
+		chattingRoomPanel = new JPanel();
+		chattingRoomPanel.setBackground(new Color(253, 252, 244));
+		mainCardPanel.add(chattingRoomPanel, "chattingRoomPanel");
+		chattingRoomPanel.setLayout(null);
+		
+		JLabel roomNameLabel = new JLabel("roomName");
+		roomNameLabel.setFont(new Font("맑은 고딕", Font.BOLD, 15));
+		roomNameLabel.setBounds(12, 10, 220, 22);
+		chattingRoomPanel.add(roomNameLabel);
+		
+		JScrollPane chattingTextAreaScrollPanel = new JScrollPane();
+		chattingTextAreaScrollPanel.setBounds(12, 42, 341, 237);
+		chattingRoomPanel.add(chattingTextAreaScrollPanel);
+		
+		JScrollPane userListScrollPanel = new JScrollPane();
+		userListScrollPanel.setBounds(365, 42, 109, 237);
+		chattingRoomPanel.add(userListScrollPanel);
+		
+		JLabel userNameListLabel = new JLabel("접속 유저");
+		userNameListLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
+		userNameListLabel.setBounds(365, 9, 109, 24);
+		chattingRoomPanel.add(userNameListLabel);
+		
+		JButton roomQuitButton = new JButton("나가기");
+		roomQuitButton.setBounds(284, 9, 69, 24);
+		chattingRoomPanel.add(roomQuitButton);
+		
+		JLabel toUserNameLabel = new JLabel("전체");
+		toUserNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		toUserNameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
+		toUserNameLabel.setBounds(12, 289, 55, 34);
+		chattingRoomPanel.add(toUserNameLabel);
+		
+		messageTextField = new JTextField();
+		messageTextField.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		messageTextField.setBounds(79, 289, 395, 34);
+		chattingRoomPanel.add(messageTextField);
+		messageTextField.setColumns(10);
+		
+		
 	}
-
 }
