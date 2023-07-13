@@ -21,6 +21,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.JTextArea;
 
 public class ClientGUI extends JFrame {
 	
@@ -144,6 +145,9 @@ public class ClientGUI extends JFrame {
 		JScrollPane chattingTextAreaScrollPanel = new JScrollPane();
 		chattingTextAreaScrollPanel.setBounds(12, 42, 341, 237);
 		chattingRoomPanel.add(chattingTextAreaScrollPanel);
+		
+		JTextArea chattingTextArea = new JTextArea();
+		chattingTextAreaScrollPanel.setViewportView(chattingTextArea);
 		
 		JLabel toUserNameLabel = new JLabel("전체");
 		toUserNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
