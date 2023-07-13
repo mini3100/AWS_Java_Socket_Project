@@ -134,7 +134,7 @@ public class ClientGUI extends JFrame {
 		titleLabel.setBounds(12, 12, 122, 27);
 		chattingRoomListPanel.add(titleLabel);
 
-		userNameLabel = new JLabel(username + "님 환영합니다!");
+		userNameLabel = new JLabel();
 		userNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		userNameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		userNameLabel.setBounds(146, 12, 211, 27);
