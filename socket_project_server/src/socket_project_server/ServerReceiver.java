@@ -62,8 +62,49 @@ public class ServerReceiver extends Thread {
 		case "sendMessage":
 			sendMessage(requestBody);
 			break;
+			
+		case "quit":
+			quit(requestBody);
+			break;
 		}
 	}
+	private void quit(String requestBody) {
+		roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
+		
+		Server.roomList.forEach(room -> {
+			if (room.getRoomName().equals(roomName)) { // 들어가고자 하는 방 이름과 같은가?
+				room.getUserList().remove(this); // 자기 자신(ServerReceiver)을 userList에 삭제
+
+				List<String> usernameList = new ArrayList<>();
+
+				room.getUserList().forEach(con -> { // 방 안의 유저 이름 리스트
+					usernameList.add(con.username);
+				});
+
+				room.getUserList().forEach(serverReceiver -> { //방 안의 사람들에게만 userListUpdate 하고 퇴장 메시지 전송
+					//userList update
+					RequestBodyDto<List<String>> updateUserListDto = 
+							new RequestBodyDto<List<String>>("updateUserList", usernameList);
+					
+					//send quit message
+					RequestBodyDto<String> quitMessageDto = 
+							new RequestBodyDto<String>("showMessage", username + "님이 퇴장하셨습니다.");
+
+					ServerSender.getInstance().send(serverReceiver.socket, updateUserListDto);
+					try {
+						Thread.sleep(100); // send가 동시에 동작하게 되면 밑에게 동작 안할 수도 있음
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					ServerSender.getInstance().send(serverReceiver.socket, quitMessageDto);
+				});
+
+			}
+		});
+		
+
+	}
+	
 	private void connection(String requestBody) {
 		// 접속 될 때 ServerReceiver마다 username을 부여
 		username = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody(); // private 전역 변수에 저장

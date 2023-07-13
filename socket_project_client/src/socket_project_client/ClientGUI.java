@@ -44,6 +44,7 @@ public class ClientGUI extends JFrame {
 
 	// 변수
 	private String username; // 채팅하는 사람 이름
+	private String roomName;
 	private Socket socket;
 
 	// mainCard
@@ -146,7 +147,7 @@ public class ClientGUI extends JFrame {
 		createRoomButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				String roomName = JOptionPane.showInputDialog(chattingRoomListPanel,"방제목을 입력하세요.");
+				roomName = JOptionPane.showInputDialog(chattingRoomListPanel,"방제목을 입력하세요.");
 				if(Objects.isNull(roomName)) {	//취소 버튼을 눌렀을 때
 					return;
 				}
@@ -210,9 +211,9 @@ public class ClientGUI extends JFrame {
 		roomQuitButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				
+				RequestBodyDto<String> requestBodyDto = new RequestBodyDto<String>("quit", roomName);
+				ClientSender.getInstance().send(requestBodyDto);
 				mainCardLayout.show(mainCardPanel, "chattingRoomListPanel");
-				
 				
 			}
 		});
