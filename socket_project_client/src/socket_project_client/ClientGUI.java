@@ -8,14 +8,24 @@ import javax.swing.border.EmptyBorder;
 import java.awt.CardLayout;
 import java.awt.Color;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Objects;
+
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 public class ClientGUI extends JFrame {
-
+	
+	//변수
+	private String username; // 채팅하는 사람 이름
+	private Socket socket;
+	
 	//mainCard
 	private CardLayout mainCardLayout;
 	private JPanel mainCardPanel;
@@ -47,6 +57,22 @@ public class ClientGUI extends JFrame {
 	 * Create the frame.
 	 */
 	public ClientGUI() {
+		username = JOptionPane.showInputDialog(chattingRoomPanel, "아이디를 입력하세요.");
+
+		if (Objects.isNull(username)) {
+			System.exit(0);
+		}
+		if (username.isBlank()) {
+			System.exit(0);
+		}
+		
+		try {
+			// 소켓 연결
+			socket = new Socket("127.0.0.1", 8000);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		setTitle("Talk & Talk");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 500, 370);
