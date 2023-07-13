@@ -8,6 +8,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.CardLayout;
 import java.awt.Color;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 
 import java.awt.Font;
@@ -16,6 +17,7 @@ import java.net.Socket;
 import java.util.Objects;
 
 import javax.swing.JScrollPane;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -32,10 +34,16 @@ public class ClientGUI extends JFrame {
 	
 	//chattingRoomList
 	private JPanel chattingRoomListPanel;
+	private JScrollPane roomListScrollPanel;
+	private DefaultListModel<String> roomListModel;
+	private JList roomList;
 	
 	//chattingRoom
 	private JPanel chattingRoomPanel;
 	private JTextField messageTextField;
+	private JScrollPane userListScrollPanel;
+	private DefaultListModel<String> userListModel;
+	private JList userList;
 	
 	/**
 	 * Launch the application.
@@ -94,20 +102,24 @@ public class ClientGUI extends JFrame {
 		titleLabel.setBounds(12, 12, 122, 27);
 		chattingRoomListPanel.add(titleLabel);
 		
-		JScrollPane roomListScrollPanel = new JScrollPane();
-		roomListScrollPanel.setBounds(12, 49, 462, 274);
-		chattingRoomListPanel.add(roomListScrollPanel);
+		JLabel userNameLabel = new JLabel("userName");
+		userNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		userNameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
+		userNameLabel.setBounds(146, 12, 211, 27);
+		chattingRoomListPanel.add(userNameLabel);
 		
 		JButton createRoomButton = new JButton("방 생성");
 		createRoomButton.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		createRoomButton.setBounds(369, 13, 105, 27);
 		chattingRoomListPanel.add(createRoomButton);
 		
-		JLabel userNameLabel = new JLabel("userName");
-		userNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		userNameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		userNameLabel.setBounds(146, 12, 211, 27);
-		chattingRoomListPanel.add(userNameLabel);
+		roomListScrollPanel = new JScrollPane();
+		roomListScrollPanel.setBounds(12, 49, 462, 274);
+		chattingRoomListPanel.add(roomListScrollPanel);
+		
+		roomListModel = new DefaultListModel<String>();
+		roomList = new JList(roomListModel);
+		roomListScrollPanel.setViewportView(roomList);
 		
 		// << chattingRoom >>
 		chattingRoomPanel = new JPanel();
@@ -120,14 +132,6 @@ public class ClientGUI extends JFrame {
 		roomNameLabel.setBounds(12, 10, 220, 22);
 		chattingRoomPanel.add(roomNameLabel);
 		
-		JScrollPane chattingTextAreaScrollPanel = new JScrollPane();
-		chattingTextAreaScrollPanel.setBounds(12, 42, 341, 237);
-		chattingRoomPanel.add(chattingTextAreaScrollPanel);
-		
-		JScrollPane userListScrollPanel = new JScrollPane();
-		userListScrollPanel.setBounds(365, 42, 109, 237);
-		chattingRoomPanel.add(userListScrollPanel);
-		
 		JLabel userNameListLabel = new JLabel("접속 유저");
 		userNameListLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		userNameListLabel.setBounds(365, 9, 109, 24);
@@ -136,6 +140,10 @@ public class ClientGUI extends JFrame {
 		JButton roomQuitButton = new JButton("나가기");
 		roomQuitButton.setBounds(284, 9, 69, 24);
 		chattingRoomPanel.add(roomQuitButton);
+		
+		JScrollPane chattingTextAreaScrollPanel = new JScrollPane();
+		chattingTextAreaScrollPanel.setBounds(12, 42, 341, 237);
+		chattingRoomPanel.add(chattingTextAreaScrollPanel);
 		
 		JLabel toUserNameLabel = new JLabel("전체");
 		toUserNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -149,6 +157,13 @@ public class ClientGUI extends JFrame {
 		chattingRoomPanel.add(messageTextField);
 		messageTextField.setColumns(10);
 		
+		userListScrollPanel = new JScrollPane();
+		userListScrollPanel.setBounds(365, 42, 109, 237);
+		chattingRoomPanel.add(userListScrollPanel);
+		
+		userListModel = new DefaultListModel<>();
+		userList = new JList(userListModel);
+		userListScrollPanel.setViewportView(userList);
 		
 	}
 }
