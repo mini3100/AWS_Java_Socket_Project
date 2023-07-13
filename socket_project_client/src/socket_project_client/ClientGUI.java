@@ -210,6 +210,7 @@ public class ClientGUI extends JFrame {
 		roomQuitButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				System.out.println("branch test");
 			}
 		});
 		roomQuitButton.setBounds(264, 9, 89, 24);
