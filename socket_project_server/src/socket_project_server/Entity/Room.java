@@ -10,6 +10,5 @@ import socket_project_server.ServerReceiver;
 @Data
 public class Room {
 	private String roomName;
-	private String owner;
 	private List<ServerReceiver> userList;
 }

@@ -12,6 +12,9 @@ public class ClientSender {
 	private Gson gson;
 	
 	private static ClientSender instance;
+	private ClientSender() {
+		gson = new Gson();
+	}
 	public static ClientSender getInstance() {
 		if(instance == null) {
 			instance = new ClientSender();

@@ -4,12 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import socket_project_server.Entity.Room;
 import socket_project_server.dto.RequestBodyDto;
@@ -22,6 +24,8 @@ public class ServerReceiver extends Thread {
 	private Gson gson;
 	
 	private String username;
+	private String owner;
+	private String roomName;
 	
 	@Override
 	public void run() {
@@ -31,6 +35,8 @@ public class ServerReceiver extends Thread {
 				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				String requestBody = bufferedReader.readLine();
 				requestController(requestBody);
+			} catch(SocketException e) {
+				return;		//소켓 종료
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -67,19 +73,23 @@ public class ServerReceiver extends Thread {
 			roomNameList.add(room.getRoomName());
 		});
 
-		RequestBodyDto<List<String>> updateRoomListRequestBodyDto = new RequestBodyDto<List<String>>("updateRoomList",
-				roomNameList);
+		RequestBodyDto<List<String>> updateRoomListRequestBodyDto = 
+				new RequestBodyDto<List<String>>("updateRoomList", roomNameList);
 
 		ServerSender.getInstance().send(socket, updateRoomListRequestBodyDto); // 자기 자신만 업데이트(forEach 안 씀)
 	}
 
 	private void createRoom(String requestBody) {
-		String roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
+		roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
 
-		Room newRoom = Room.builder().roomName(roomName).owner(username) // 방 만들기를 누른 사람이 owner이므로 해당 소켓의 username이
-																			// 들어가면 됨.
+		Room newRoom = Room.builder().roomName(roomName) // 방 만들기를 누른 사람이 owner이므로 해당 소켓의 username이 들어가면 됨.
 				.userList(new ArrayList<ServerReceiver>()).build();
-
+		
+		//roomName 전송
+		RequestBodyDto<String> roomNameRequestBodyDto = 
+				new RequestBodyDto<String>("updateRoomName", roomName);
+		ServerSender.getInstance().send(socket, roomNameRequestBodyDto);
+		
 		Server.roomList.add(newRoom);
 
 		List<String> roomNameList = new ArrayList<>(); // 방 이름들을 담는 list
@@ -87,17 +97,28 @@ public class ServerReceiver extends Thread {
 			roomNameList.add(room.getRoomName());
 		});
 
-		RequestBodyDto<List<String>> updateRoomListRequestBodyDto = new RequestBodyDto<List<String>>("updateRoomList",
-				roomNameList);
+		RequestBodyDto<List<String>> updateRoomListRequestBodyDto 
+				= new RequestBodyDto<List<String>>("updateRoomList", roomNameList);
 
 		Server.serverReceiverList.forEach(con -> {
 			ServerSender.getInstance().send(con.socket, updateRoomListRequestBodyDto);
 		});
+		
+		List<String> usernameList = new ArrayList<>();
+		usernameList.add(username);
+		RequestBodyDto<List<String>> updateUserListDto = 
+				new RequestBodyDto<List<String>>("updateUserList", usernameList);
+		ServerSender.getInstance().send(socket, updateUserListDto);
 	}
 
 	private void join(String requestBody) {
-		String roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
+		roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
 
+		//roomName 전송
+		RequestBodyDto<String> requestBodyDto = 
+				new RequestBodyDto<String>("updateRoomName", roomName);
+		ServerSender.getInstance().send(socket, requestBodyDto);
+		
 		Server.roomList.forEach(room -> {
 			if (room.getRoomName().equals(roomName)) { // 들어가고자 하는 방 이름과 같은가?
 				room.getUserList().add(this); // 자기 자신(ServerReceiver)을 userList에 추가
@@ -108,19 +129,22 @@ public class ServerReceiver extends Thread {
 					usernameList.add(con.username);
 				});
 
-				room.getUserList().forEach(ServerReceiver -> { // 방 안의 사람들에게만 유저리스트 업데이트, 접속메시지 전송
-					RequestBodyDto<List<String>> updateUserListDto = new RequestBodyDto<List<String>>("updateUserList",
-							usernameList);
-					RequestBodyDto<String> joinMessageDto = new RequestBodyDto<String>("showMessage",
-							username + "님이 접속했습니다.");
+				room.getUserList().forEach(serverReceiver -> { // 방 안의 사람들에게만 유저리스트 업데이트, 접속메시지 전송
+					//userList update
+					RequestBodyDto<List<String>> updateUserListDto = 
+							new RequestBodyDto<List<String>>("updateUserList", usernameList);
+					
+					//send join message
+					RequestBodyDto<String> joinMessageDto = 
+							new RequestBodyDto<String>("showMessage", username + "님이 접속했습니다.");
 
-					ServerSender.getInstance().send(ServerReceiver.socket, updateUserListDto);
+					ServerSender.getInstance().send(serverReceiver.socket, updateUserListDto);
 					try {
 						Thread.sleep(100); // send가 동시에 동작하게 되면 밑에게 동작 안할 수도 있음
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					ServerSender.getInstance().send(ServerReceiver.socket, joinMessageDto);
+					ServerSender.getInstance().send(serverReceiver.socket, joinMessageDto);
 				});
 
 			}

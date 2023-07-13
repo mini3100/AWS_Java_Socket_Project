@@ -33,20 +33,32 @@ public class ClientReceiver extends Thread {
 		String resource = gson.fromJson(requestBody, RequestBodyDto.class).getResource();
 
 		switch (resource) {
+		case "updateRoomName":
+			String roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
+			ClientGUI.getInstance().getRoomNameLabel().setText(roomName);
+			break;
+			
 		case "updateRoomList":
 			List<String> roomList = (List<String>) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
 			ClientGUI.getInstance().getRoomListModel().clear();
 			ClientGUI.getInstance().getRoomListModel().addAll(roomList);
 			break;
+			
 		case "showMessage":
 			String messageContent = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
 			ClientGUI.getInstance().getChattingTextArea().append(messageContent + "\n");
 			break;
+			
 		case "updateUserList":
 			List<String> usernameList = (List<String>) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
-			ClientGUI.getInstance().getUserListModel().clear(); // 리스트 초기화 시키고
+			usernameList.set(0, usernameList.get(0) + "(방장)");
+			ClientGUI.getInstance().getUserListModel().clear(); // 리스트 초기화 시키고		
 			ClientGUI.getInstance().getUserListModel().addAll(usernameList); // 새로 받아온 리스트를 addAll
+			//owner를 사용하지 않고 userList[0]의 username + (방장)
+			//userList가 업데이트 되면 또 list[0]번 업데이트
+			//userList size == 0 이면 방 삭제 -> roomList에서 삭제
 			break;
+			
 		}
 	}
 

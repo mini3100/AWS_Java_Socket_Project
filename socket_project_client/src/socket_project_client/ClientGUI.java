@@ -6,6 +6,8 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Objects;
@@ -50,11 +52,13 @@ public class ClientGUI extends JFrame {
 	// chattingRoomList
 	private JPanel chattingRoomListPanel;
 	private JScrollPane roomListScrollPanel;
+	private JLabel userNameLabel;
 	private DefaultListModel<String> roomListModel;
 	private JList roomList;
 
 	// chattingRoom
 	private JPanel chattingRoomPanel;
+	private JLabel roomNameLabel;
 	private JTextField messageTextField;
 	private JTextArea chattingTextArea;
 	private JScrollPane userListScrollPanel;
@@ -68,8 +72,15 @@ public class ClientGUI extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ClientGUI frame = new ClientGUI();
+					ClientGUI frame = ClientGUI.getInstance();
 					frame.setVisible(true);
+					
+					ClientReceiver clientReceiver = new ClientReceiver();
+					clientReceiver.start(); // Thread 작동
+
+					// 접속 이벤트
+					RequestBodyDto<String> requestBodyDto = new RequestBodyDto<String>("connection", frame.username);
+					ClientSender.getInstance().send(requestBodyDto);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -118,7 +129,7 @@ public class ClientGUI extends JFrame {
 		titleLabel.setBounds(12, 12, 122, 27);
 		chattingRoomListPanel.add(titleLabel);
 
-		JLabel userNameLabel = new JLabel("userName");
+		userNameLabel = new JLabel(username + "님 환영합니다!");
 		userNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		userNameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		userNameLabel.setBounds(146, 12, 211, 27);
@@ -127,14 +138,51 @@ public class ClientGUI extends JFrame {
 		JButton createRoomButton = new JButton("방 생성");
 		createRoomButton.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		createRoomButton.setBounds(369, 13, 105, 27);
+		createRoomButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				String roomName = JOptionPane.showInputDialog(chattingRoomListPanel,"방제목을 입력하세요.");
+				if(Objects.isNull(roomName)) {	//취소 버튼을 눌렀을 때
+					return;
+				}
+				if(roomName.isBlank()) {		//방제목을 입력하지 않았을 때
+					JOptionPane.showMessageDialog(chattingRoomListPanel, "방제목을 입력하세요.", "방만들기 실패", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				for(int i = 0; i < roomListModel.size(); i++) {
+					if(roomListModel.get(i).equals(roomName)) {
+						JOptionPane.showMessageDialog(chattingRoomListPanel, "이미 존재하는 방제목입니다.", "방만들기 실패", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+				}
+				
+				RequestBodyDto<String> requestBodyDto = new RequestBodyDto<String>("createRoom", roomName);
+				ClientSender.getInstance().send(requestBodyDto);
+				mainCardLayout.show(mainCardPanel, "chattingRoomPanel");	//패널 전환
+				
+				requestBodyDto = new RequestBodyDto<String>("join", roomName);
+				ClientSender.getInstance().send(requestBodyDto);
+			}
+		});
 		chattingRoomListPanel.add(createRoomButton);
-
+		
 		roomListScrollPanel = new JScrollPane();
 		roomListScrollPanel.setBounds(12, 49, 462, 274);
 		chattingRoomListPanel.add(roomListScrollPanel);
-
+		
 		roomListModel = new DefaultListModel<String>();
 		roomList = new JList(roomListModel);
+		roomList.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(e.getClickCount() == 2) { //더블 클릭
+					String roomName = roomListModel.get(roomList.getSelectedIndex());
+					mainCardLayout.show(mainCardPanel, "chattingRoomPanel");	//패널 전환
+					RequestBodyDto<String> requestBodyDto = new RequestBodyDto<String>("join", roomName);
+					ClientSender.getInstance().send(requestBodyDto);
+				}
+			}
+		});
 		roomListScrollPanel.setViewportView(roomList);
 
 		// << chattingRoom >>
@@ -143,7 +191,7 @@ public class ClientGUI extends JFrame {
 		mainCardPanel.add(chattingRoomPanel, "chattingRoomPanel");
 		chattingRoomPanel.setLayout(null);
 
-		JLabel roomNameLabel = new JLabel("roomName");
+		roomNameLabel = new JLabel();
 		roomNameLabel.setFont(new Font("맑은 고딕", Font.BOLD, 15));
 		roomNameLabel.setBounds(12, 10, 220, 22);
 		chattingRoomPanel.add(roomNameLabel);
@@ -154,7 +202,7 @@ public class ClientGUI extends JFrame {
 		chattingRoomPanel.add(userNameListLabel);
 
 		JButton roomQuitButton = new JButton("나가기");
-		roomQuitButton.setBounds(284, 9, 69, 24);
+		roomQuitButton.setBounds(264, 9, 89, 24);
 		chattingRoomPanel.add(roomQuitButton);
 
 		JScrollPane chattingTextAreaScrollPanel = new JScrollPane();
