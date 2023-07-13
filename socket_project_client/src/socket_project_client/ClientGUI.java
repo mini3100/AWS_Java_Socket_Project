@@ -207,6 +207,11 @@ public class ClientGUI extends JFrame {
 		chattingRoomPanel.add(userNameListLabel);
 
 		JButton roomQuitButton = new JButton("나가기");
+		roomQuitButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+		});
 		roomQuitButton.setBounds(264, 9, 89, 24);
 		chattingRoomPanel.add(roomQuitButton);
 
