@@ -9,6 +9,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.util.Objects;
 
@@ -80,8 +81,8 @@ public class ClientGUI extends JFrame {
 
 					// 접속 이벤트
 					RequestBodyDto<String> requestBodyDto = new RequestBodyDto<String>("connection", frame.username);
-					ClientSender.getInstance().send(requestBodyDto);
-				} catch (Exception e) {
+					ClientSender.getInstance().send(requestBodyDto);				
+					} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -91,19 +92,23 @@ public class ClientGUI extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public ClientGUI() {
-		username = JOptionPane.showInputDialog(chattingRoomPanel, "아이디를 입력하세요.");
+	private ClientGUI() {
+		username = JOptionPane.showInputDialog(mainCardPanel, "아이디를 입력하세요");
 
-		if (Objects.isNull(username)) {
+		if (Objects.isNull(username)) {	// x 버튼 눌렀을 때
 			System.exit(0);
 		}
-		if (username.isBlank()) {
-			System.exit(0);
+		if (username.isBlank()) {	// 아이디를 입력하지 않고 확인 눌렀을 때
+			JOptionPane.showMessageDialog(mainCardPanel, "아이디를 입력하세요.", "접속 실패", JOptionPane.ERROR_MESSAGE);
+			username = JOptionPane.showInputDialog(mainCardPanel, "아이디를 입력하세요.");
 		}
-
+		
 		try {
 			// 소켓 연결
 			socket = new Socket("127.0.0.1", 8000);
+		} catch(ConnectException e) {
+			JOptionPane.showMessageDialog(mainCardPanel, "서버와의 연결에 실패했습니다.", "접속 실패", JOptionPane.ERROR_MESSAGE);
+			System.exit(0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
