@@ -57,8 +57,8 @@ public class ClientGUI extends JFrame {
 	private JList roomList;
 
 	// chattingRoom
-	private JPanel chattingRoomPanel;
 	private JLabel roomNameLabel;
+	private JPanel chattingRoomPanel;
 	private JTextField messageTextField;
 	private JTextArea chattingTextArea;
 	private JScrollPane userListScrollPanel;
@@ -91,7 +91,7 @@ public class ClientGUI extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public ClientGUI() {
+	private ClientGUI() {
 		username = JOptionPane.showInputDialog(chattingRoomPanel, "아이디를 입력하세요.");
 
 		if (Objects.isNull(username)) {
@@ -129,7 +129,8 @@ public class ClientGUI extends JFrame {
 		titleLabel.setBounds(12, 12, 122, 27);
 		chattingRoomListPanel.add(titleLabel);
 
-		userNameLabel = new JLabel(username + "님 환영합니다!");
+		userNameLabel = new JLabel();
+		userNameLabel.setText(username + "님 환영합니다!");
 		userNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		userNameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		userNameLabel.setBounds(146, 12, 211, 27);
@@ -200,8 +201,15 @@ public class ClientGUI extends JFrame {
 		userNameListLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		userNameListLabel.setBounds(365, 9, 109, 24);
 		chattingRoomPanel.add(userNameListLabel);
-
+		
+		//방 나가기 버튼 이벤트
 		JButton roomQuitButton = new JButton("나가기");
+		roomQuitButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+			}
+		});
 		roomQuitButton.setBounds(264, 9, 89, 24);
 		chattingRoomPanel.add(roomQuitButton);
 
