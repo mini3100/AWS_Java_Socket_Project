@@ -210,7 +210,10 @@ public class ClientGUI extends JFrame {
 		roomQuitButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.out.println("branch test");
+				
+				mainCardLayout.show(mainCardPanel, "chattingRoomListPanel");
+				RequestBodyDto<String> requestBodyDto = new RequestBodyDto<String>("join", roomName);
+				ClientSender.getInstance().send(requestBodyDto);
 			}
 		});
 		roomQuitButton.setBounds(264, 9, 89, 24);
