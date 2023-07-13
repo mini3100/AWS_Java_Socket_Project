@@ -6,9 +6,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import socket_project_server.Entity.Room;
+
 public class Server {
 	
 	public static List<ServerReceiver> serverReceiverList = new ArrayList<>();
+	public static List<Room> roomList = new ArrayList<>();
 	
 	public static void main(String[] args) {
 		try {
