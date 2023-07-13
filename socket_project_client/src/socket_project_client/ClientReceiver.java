@@ -14,6 +14,8 @@ public class ClientReceiver extends Thread {
 	@Override
 	public void run() {
 		ClientGUI clientGUI = ClientGUI.getInstance();
+		String username = ClientGUI.getInstance().getUsername();
+		ClientGUI.getInstance().getUserNameLabel().setText(username + "님 환영합니다!");
 		while (true) {
 			try {
 				BufferedReader bufferedReader = new BufferedReader(
