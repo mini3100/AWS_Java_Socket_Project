@@ -212,8 +212,8 @@ public class ClientGUI extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				
 				mainCardLayout.show(mainCardPanel, "chattingRoomListPanel");
-				RequestBodyDto<String> requestBodyDto = new RequestBodyDto<String>("join", roomName);
-				ClientSender.getInstance().send(requestBodyDto);
+				
+				
 			}
 		});
 		roomQuitButton.setBounds(264, 9, 89, 24);
