@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -106,39 +107,61 @@ public class ServerReceiver extends Thread {
 	
 	private void quit(String requestBody) {
 		String roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
+
+		Iterator<Room> iterator = Server.roomList.iterator();
 		
-		Server.roomList.forEach(room -> {
-			if (room.getRoomName().equals(roomName)) { // 들어가고자 하는 방 이름과 같은가?
+		while(iterator.hasNext()) {
+			Room room = iterator.next();
+			
+			if (room.getRoomName().equals(roomName)) { // 나가고자 하는 방 이름과 같은가?
+				int index = Server.roomList.indexOf(room);	//roomList에서의 해당 room 인덱스 저장
+				
 				room.getUserList().remove(this); // 자기 자신(ServerReceiver)을 userList에 삭제
-
-				List<String> usernameList = new ArrayList<>();
-
-				room.getUserList().forEach(con -> { // 방 안의 유저 이름 리스트
-					usernameList.add(con.username);
-				});
-
-				room.getUserList().forEach(serverReceiver -> { //방 안의 사람들에게만 userListUpdate 하고 퇴장 메시지 전송
-					//userList update
-					RequestBodyDto<List<String>> updateUserListDto = 
-							new RequestBodyDto<List<String>>("updateUserList", usernameList);
+				
+				if(room.getUserList().size() != 0) {	//해당 room의 userList size가 0이 될 시
+					//room이 삭제됐을 시에는 방 안의 유저 이름 리스트 업데이트
+					List<String> usernameList = new ArrayList<>();
 					
-					//send quit message
-					RequestBodyDto<String> quitMessageDto = 
-							new RequestBodyDto<String>("showMessage", username + "님이 퇴장하셨습니다.");
-
-					ServerSender.getInstance().send(serverReceiver.socket, updateUserListDto);
-					try {
-						Thread.sleep(100); // send가 동시에 동작하게 되면 밑에게 동작 안할 수도 있음
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					ServerSender.getInstance().send(serverReceiver.socket, quitMessageDto);
-				});
-
+					//usernameList update
+					room.getUserList().forEach(con -> {
+						usernameList.add(con.username);
+					});
+	
+					room.getUserList().forEach(serverReceiver -> { //방 안의 사람들에게만 userListUpdate 하고 퇴장 메시지 전송
+						//userList update
+						RequestBodyDto<List<String>> updateUserListDto = 
+								new RequestBodyDto<List<String>>("updateUserList", usernameList);
+						
+						//send quit message
+						RequestBodyDto<String> quitMessageDto = 
+								new RequestBodyDto<String>("showMessage", username + "님이 퇴장하셨습니다.");
+	
+						ServerSender.getInstance().send(serverReceiver.socket, updateUserListDto);
+						try {
+							Thread.sleep(100); // send가 동시에 동작하게 되면 밑에게 동작 안할 수도 있음
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						ServerSender.getInstance().send(serverReceiver.socket, quitMessageDto);
+					});
+				}
+				else {
+					Server.roomList.remove(index);	//roomList에서의 해당 room 인덱스 삭제
+					//roomListUpdate
+					List<String> roomNameList = new ArrayList<>(); // 방 이름들을 담는 list
+					Server.roomList.forEach(room2 -> {
+						roomNameList.add(room2.getRoomName());
+					});
+					RequestBodyDto<List<String>> updateRoomListDto 
+							= new RequestBodyDto<List<String>>("updateRoomList", roomNameList);
+					Server.serverReceiverList.forEach(con -> {
+						ServerSender.getInstance().send(con.socket, updateRoomListDto);
+					});
+					break;
+				}
 			}
-		});
+		}
 		
-
 	}
 	
 	private void connection(String requestBody) {
@@ -157,6 +180,11 @@ public class ServerReceiver extends Thread {
 	}
 
 	private void createRoom(String requestBody) {
+		//방을 나갔다 들어왔을 때 TextArea 초기화 되도록
+		RequestBodyDto<String> clearTextAreaDto = 
+				new RequestBodyDto<String>("clearTextArea", null);
+		ServerSender.getInstance().send(socket, clearTextAreaDto);
+		
 		roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
 
 		Room newRoom = Room.builder().roomName(roomName) // 방 만들기를 누른 사람이 owner이므로 해당 소켓의 username이 들어가면 됨.
@@ -189,6 +217,11 @@ public class ServerReceiver extends Thread {
 	}
 
 	private void join(String requestBody) {
+		//방을 나갔다 들어왔을 때 TextArea 초기화 되도록
+		RequestBodyDto<String> clearTextAreaDto = 
+				new RequestBodyDto<String>("clearTextArea", null);
+		ServerSender.getInstance().send(socket, clearTextAreaDto);
+		
 		roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
 		
 		//roomName 전송
