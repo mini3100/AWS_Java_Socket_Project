@@ -212,6 +212,11 @@ public class ServerReceiver extends Thread {
 	}
 
 	private void join(String requestBody) {
+		//방을 나갔다 들어왔을 때 TextArea 초기화 되도록
+		RequestBodyDto<String> clearTextAreaDto = 
+				new RequestBodyDto<String>("clearTextArea", null);
+		ServerSender.getInstance().send(socket, clearTextAreaDto);
+		
 		roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
 		
 		//roomName 전송

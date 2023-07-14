@@ -46,6 +46,10 @@ public class ClientReceiver extends Thread {
 			ClientGUI.getInstance().getRoomListModel().addAll(roomList);
 			break;
 			
+		case "clearTextArea":
+			ClientGUI.getInstance().getChattingTextArea().setText("");
+			break;
+			
 		case "showMessage":
 			String messageContent = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
 			ClientGUI.getInstance().getChattingTextArea().append(messageContent + "\n");
