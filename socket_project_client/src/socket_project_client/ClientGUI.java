@@ -46,6 +46,8 @@ public class ClientGUI extends JFrame {
 	private String username; // 채팅하는 사람 이름
 	private String roomName;
 	private Socket socket;
+	private boolean isWhisper;
+	private String toUsername;	//귓속말 채팅받는 사람
 
 	// mainCard
 	private CardLayout mainCardLayout;
@@ -94,6 +96,7 @@ public class ClientGUI extends JFrame {
 	 * Create the frame.
 	 */
 	private ClientGUI() {
+		isWhisper = false;
 		username = JOptionPane.showInputDialog(mainCardPanel, "아이디를 입력하세요");
 		
 		if (Objects.isNull(username)) {	// x 버튼 눌렀을 때
@@ -242,13 +245,32 @@ public class ClientGUI extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					SendMessage sendMessage = SendMessage.builder().fromUsername(username)
-							.messageBody(messageTextField.getText()).build();
-					RequestBodyDto<SendMessage> requestBodyDto = new RequestBodyDto<>("sendMessage", sendMessage);
-
-					ClientSender.getInstance().send(requestBodyDto);
-
-					messageTextField.setText(""); // 전송후 텍스트필드 비우기
+					if(isWhisper == false) {
+						SendMessage sendMessage = SendMessage.builder().fromUsername(username)
+								.messageBody(messageTextField.getText()).build();
+						RequestBodyDto<SendMessage> requestBodyDto = new RequestBodyDto<>("sendMessage", sendMessage);
+						
+						ClientSender.getInstance().send(requestBodyDto);
+						
+						messageTextField.setText(""); // 전송후 텍스트필드 비우기		
+					}
+					else {	//귓속말모드로 메세지를 보낼 경우
+//						RequestBodyDto<String> requestBodyDto = new RequestBodyDto<>("whisper", username);
+//						ClientSender.getInstance().send(requestBodyDto);
+						if(userList.getSelectedIndex() == 0) {
+							toUsername = toUsername.substring(0,toUsername.indexOf("("));
+						}
+						SendMessage sendMessage = SendMessage.builder().fromUsername(username).toUsername(toUsername)
+								.messageBody(messageTextField.getText()).build();
+						RequestBodyDto<SendMessage> requestBodyDto = new RequestBodyDto<>("whisper", sendMessage);
+						ClientSender.getInstance().send(requestBodyDto);
+						
+						toUserNameLabel.setText("전체"); //Label "전체"로 변경
+						messageTextField.setText(""); // 전송후 텍스트필드 비우기
+						userList.clearSelection();;
+						
+						isWhisper = false;
+					}
 				}
 			}
 		});
@@ -260,6 +282,17 @@ public class ClientGUI extends JFrame {
 
 		userListModel = new DefaultListModel<>();
 		userList = new JList(userListModel);
+		userList.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(e.getClickCount() == 2) { //더블 클릭
+					toUsername = userListModel.get(userList.getSelectedIndex());
+					toUserNameLabel.setText(toUsername);
+					
+					isWhisper = true;
+				}
+			}
+		});
 		userListScrollPanel.setViewportView(userList);
 
 	}

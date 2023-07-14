@@ -65,8 +65,45 @@ public class ServerReceiver extends Thread {
 		case "quit":
 			quit(requestBody);
 			break;
+			
+		case "whisper":
+			whisper(requestBody);
 		}
 	}
+	private void whisper(String requestBody) {
+//		username = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody(); // private 전역 변수에 저장
+		
+		TypeToken<RequestBodyDto<SendMessage>> typeToken = new TypeToken<>() {
+		};
+		RequestBodyDto<SendMessage> requestBodyDto = gson.fromJson(requestBody, typeToken.getType());
+		// RequestBodyDto의 제네릭 타입까지 SendMessage로 바꾸려면 typeToken을 쓰는 것이 필요
+		SendMessage sendMessage = requestBodyDto.getBody();
+		
+		Server.roomList.forEach(room -> {
+			if (room.getRoomName().equals(roomName)) { // 들어가고자 하는 방 이름과 같은가?
+				room.getUserList().forEach(con -> { // 방 안의 유저 이름 리스트
+					String toUsername = sendMessage.getToUsername(), fromUsername = sendMessage.getFromUsername();
+					
+					if (con.username.equals(toUsername)
+							||con.username.equals(fromUsername)) {
+						if (con.username.equals(fromUsername)) {
+							if(fromUsername.equals(username)) 
+								fromUsername = "나";
+						}
+						else {
+							toUsername = "나";
+						}
+						RequestBodyDto<String> dto = new RequestBodyDto<String>("showMessage"
+								,fromUsername + " -> " + toUsername + " : " + sendMessage.getMessageBody());
+						
+						ServerSender.getInstance().send(con.socket, dto);
+					}
+					
+				});
+			}
+		});
+	}
+	
 	private void quit(String requestBody) {
 		String roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
 		
