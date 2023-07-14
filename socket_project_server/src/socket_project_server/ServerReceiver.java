@@ -180,6 +180,11 @@ public class ServerReceiver extends Thread {
 	}
 
 	private void createRoom(String requestBody) {
+		//방을 나갔다 들어왔을 때 TextArea 초기화 되도록
+		RequestBodyDto<String> clearTextAreaDto = 
+				new RequestBodyDto<String>("clearTextArea", null);
+		ServerSender.getInstance().send(socket, clearTextAreaDto);
+		
 		roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
 
 		Room newRoom = Room.builder().roomName(roomName) // 방 만들기를 누른 사람이 owner이므로 해당 소켓의 username이 들어가면 됨.
