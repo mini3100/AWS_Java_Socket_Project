@@ -24,13 +24,12 @@ public class ServerReceiver extends Thread {
 	private Gson gson;
 	
 	private String username;
-	private String owner;
 	private String roomName;
 	
 	@Override
 	public void run() {
 		gson = new Gson();
-		while (true) { // 계속해서 채팅을 치기 위한 반복
+		while (true) { 
 			try {
 				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				String requestBody = bufferedReader.readLine();
@@ -69,7 +68,7 @@ public class ServerReceiver extends Thread {
 		}
 	}
 	private void quit(String requestBody) {
-		roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
+		String roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
 		
 		Server.roomList.forEach(room -> {
 			if (room.getRoomName().equals(roomName)) { // 들어가고자 하는 방 이름과 같은가?
@@ -154,7 +153,7 @@ public class ServerReceiver extends Thread {
 
 	private void join(String requestBody) {
 		roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
-
+		
 		//roomName 전송
 		RequestBodyDto<String> requestBodyDto = 
 				new RequestBodyDto<String>("updateRoomName", roomName);

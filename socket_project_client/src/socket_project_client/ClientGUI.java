@@ -95,7 +95,7 @@ public class ClientGUI extends JFrame {
 	 */
 	private ClientGUI() {
 		username = JOptionPane.showInputDialog(mainCardPanel, "아이디를 입력하세요");
-
+		
 		if (Objects.isNull(username)) {	// x 버튼 눌렀을 때
 			System.exit(0);
 		}
@@ -113,7 +113,7 @@ public class ClientGUI extends JFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		
 		setTitle("Talk & Talk");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 500, 370);
@@ -136,6 +136,7 @@ public class ClientGUI extends JFrame {
 		chattingRoomListPanel.add(titleLabel);
 
 		userNameLabel = new JLabel();
+		
 		userNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		userNameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		userNameLabel.setBounds(146, 12, 211, 27);
@@ -182,7 +183,7 @@ public class ClientGUI extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if(e.getClickCount() == 2) { //더블 클릭
-					String roomName = roomListModel.get(roomList.getSelectedIndex());
+					roomName = roomListModel.get(roomList.getSelectedIndex());
 					mainCardLayout.show(mainCardPanel, "chattingRoomPanel");	//패널 전환
 					RequestBodyDto<String> requestBodyDto = new RequestBodyDto<String>("join", roomName);
 					ClientSender.getInstance().send(requestBodyDto);
