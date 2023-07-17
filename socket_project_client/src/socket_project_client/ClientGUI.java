@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -14,6 +16,7 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.util.Objects;
 
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -31,8 +34,12 @@ import lombok.Getter;
 import lombok.Setter;
 import socket_project_client.dto.RequestBodyDto;
 import socket_project_client.dto.SendMessage;
+<<<<<<< HEAD
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+=======
+import javax.swing.JRadioButton;
+>>>>>>> bjm
 
 @Getter // 모든 멤버 변수들에 Getter가 생성
 @Setter
@@ -80,6 +87,9 @@ public class ClientGUI extends JFrame {
 	private JList userList;
 	private JLabel connectedUserLabel;
 	private CustomCellRenderer userListcellRenderer;
+	private JRadioButton entireRadioButton;
+	private JRadioButton whisperRadioButton;
+	private JLabel toUserNameLabel;
 
 	/**
 	 * Launch the application.
@@ -200,6 +210,7 @@ public class ClientGUI extends JFrame {
 				if(e.getClickCount() == 2) { //더블 클릭
 					roomName = roomListModel.get(roomList.getSelectedIndex());
 					mainCardLayout.show(mainCardPanel, "chattingRoomPanel");	//패널 전환
+					entireRadioButton.setSelected(true);
 					RequestBodyDto<String> requestBodyDto = new RequestBodyDto<String>("join", roomName);
 					ClientSender.getInstance().send(requestBodyDto);
 				}
@@ -231,7 +242,7 @@ public class ClientGUI extends JFrame {
 
 		roomNameLabel = new JLabel();
 		roomNameLabel.setFont(new Font("맑은 고딕", Font.BOLD, 15));
-		roomNameLabel.setBounds(12, 10, 220, 22);
+		roomNameLabel.setBounds(12, 10, 89, 22);
 		chattingRoomPanel.add(roomNameLabel);
 
 		JLabel userNameListLabel = new JLabel("참여 인원");
@@ -259,7 +270,7 @@ public class ClientGUI extends JFrame {
 		chattingTextArea = new JTextArea();
 		chattingTextAreaScrollPanel.setViewportView(chattingTextArea);
 
-		JLabel toUserNameLabel = new JLabel("전체");
+		toUserNameLabel = new JLabel("전체");
 		toUserNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		toUserNameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		toUserNameLabel.setBounds(12, 289, 55, 34);
@@ -283,21 +294,12 @@ public class ClientGUI extends JFrame {
 						messageTextField.setText(""); // 전송후 텍스트필드 비우기		
 					}
 					else {	//귓속말모드로 메세지를 보낼 경우
-//						RequestBodyDto<String> requestBodyDto = new RequestBodyDto<>("whisper", username);
-//						ClientSender.getInstance().send(requestBodyDto);
-						if(userList.getSelectedIndex() == 0) {
-							toUsername = toUsername.substring(0,toUsername.indexOf("("));
-						}
 						SendMessage sendMessage = SendMessage.builder().fromUsername(username).toUsername(toUsername)
 								.messageBody(messageTextField.getText()).build();
 						RequestBodyDto<SendMessage> requestBodyDto = new RequestBodyDto<>("whisper", sendMessage);
 						ClientSender.getInstance().send(requestBodyDto);
 						
-						toUserNameLabel.setText("전체"); //Label "전체"로 변경
 						messageTextField.setText(""); // 전송후 텍스트필드 비우기
-						userList.clearSelection();;
-						
-						isWhisper = false;
 					}
 				}
 			}
@@ -321,11 +323,13 @@ public class ClientGUI extends JFrame {
 					toUserNameLabel.setText(toUsername);
 					
 					isWhisper = true;
+					whisperRadioButton.setSelected(true);
 				}
 			}
 		});
 		userListScrollPanel.setViewportView(userList);
 		
+<<<<<<< HEAD
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -337,9 +341,50 @@ public class ClientGUI extends JFrame {
 			}
 		});
 
+=======
+		//RadioButton
+		entireRadioButton = new JRadioButton("전체");
+		entireRadioButton.setSelected(true);
+		entireRadioButton.setBounds(133, 10, 49, 22);
+		entireRadioButton.addItemListener(new MyItemListener());
+		chattingRoomPanel.add(entireRadioButton);
+		
+		whisperRadioButton = new JRadioButton("귓속말");
+		whisperRadioButton.setBounds(186, 10, 68, 22);
+		whisperRadioButton.addItemListener(new MyItemListener());
+		chattingRoomPanel.add(whisperRadioButton);
+		
+		ButtonGroup group = new ButtonGroup();
+		group.add(entireRadioButton);
+		group.add(whisperRadioButton);
+>>>>>>> bjm
 	}
 	
+	//RadioButton event
+	class MyItemListener implements ItemListener{
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			if(entireRadioButton.isSelected()){
+				isWhisper = false;
+				userList.clearSelection();
+				ClientGUI.getInstance().getToUserNameLabel().setText("전체");
+			}
+			else if(whisperRadioButton.isSelected()){
+				if(userList.isSelectionEmpty()) {
+					userList.setSelectedIndex(0);
+					toUsername = userListModel.get(0);
+					ClientGUI.getInstance().getToUserNameLabel().setText(toUsername);
+					
+					if(userList.getSelectedIndex() == 0) {	//"(방장)" 제거
+						toUsername = toUsername.substring(0,toUsername.indexOf("("));
+					}
+				}
+				isWhisper = true;
+			}
+		}   
+	}
 }
+
 @Setter 
 class CustomCellRenderer extends DefaultListCellRenderer {
 	    
