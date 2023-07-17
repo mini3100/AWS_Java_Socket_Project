@@ -52,7 +52,8 @@ public class ClientGUI extends JFrame {
 	private Socket socket;
 	private boolean isWhisper;
 	private String toUsername;	//귓속말 채팅받는 사람
-	private int TARGET_INDEX;
+	private int connectedUserIndex;
+	private int userIndex;
 
 	// mainCard
 	private CardLayout mainCardLayout;
@@ -67,7 +68,7 @@ public class ClientGUI extends JFrame {
 	private JList roomList;
 	private DefaultListModel<String> connectedUserListModel;
 	private JList connectedUserList;
-	private DefaultListCellRenderer cellRenderer;
+	private DefaultListCellRenderer connectedUserListcellRenderer;
 
 	// chattingRoom
 	private JPanel chattingRoomPanel;
@@ -78,6 +79,7 @@ public class ClientGUI extends JFrame {
 	private DefaultListModel<String> userListModel;
 	private JList userList;
 	private JLabel connectedUserLabel;
+	private DefaultListCellRenderer UserListcellRenderer;
 
 	/**
 	 * Launch the application.
@@ -205,19 +207,40 @@ public class ClientGUI extends JFrame {
 		});
 		roomListScrollPanel.setViewportView(roomList);
 
+		connectedUserLabel = new JLabel("전체 접속자");
+		connectedUserLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		connectedUserLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
+		connectedUserLabel.setBounds(368, 14, 106, 27);
+		chattingRoomListPanel.add(connectedUserLabel);
+		
 		connectedUserListScrollPanel = new JScrollPane();
 		connectedUserListScrollPanel.setBounds(369, 49, 105, 274);
 		chattingRoomListPanel.add(connectedUserListScrollPanel);
 		
 		connectedUserListModel = new DefaultListModel<String>();
 		connectedUserList = new JList(connectedUserListModel);
+		
+		connectedUserListcellRenderer = new DefaultListCellRenderer() {
+			
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+					boolean isSelected, boolean cellHasFocus) {
+				Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				
+				// Check if this is the target element
+				if (index == connectedUserIndex) {
+					component.setForeground(new Color(29,132,255));
+				} else {
+					component.setForeground(Color.BLACK);
+				}
+				
+				return component;
+			}
+		};
+		
+		connectedUserList.setCellRenderer(connectedUserListcellRenderer);
 		connectedUserListScrollPanel.setViewportView(connectedUserList);
 		
-		connectedUserLabel = new JLabel("전체 접속자");
-		connectedUserLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		connectedUserLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		connectedUserLabel.setBounds(368, 14, 106, 27);
-		chattingRoomListPanel.add(connectedUserLabel);
 		
 		// << chattingRoom >>
 		chattingRoomPanel = new JPanel();
@@ -308,7 +331,7 @@ public class ClientGUI extends JFrame {
 		userListModel = new DefaultListModel<>();
 		userList = new JList(userListModel);
 		
-		cellRenderer = new DefaultListCellRenderer() {
+		UserListcellRenderer = new DefaultListCellRenderer() {
 		    
 		    @Override
 		    public Component getListCellRendererComponent(JList<?> list, Object value, int index,
@@ -316,7 +339,7 @@ public class ClientGUI extends JFrame {
 		        Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		        
 		        // Check if this is the target element
-		        if (index == TARGET_INDEX) {
+		        if (index == userIndex) {
 		            component.setForeground(new Color(29,132,255));
 		        } else {
 		            component.setForeground(Color.BLACK);
@@ -326,7 +349,7 @@ public class ClientGUI extends JFrame {
 		    }
 		};
 		
-		userList.setCellRenderer(cellRenderer);
+		userList.setCellRenderer(UserListcellRenderer);
 		
 		userList.addMouseListener(new MouseAdapter() {
 			@Override

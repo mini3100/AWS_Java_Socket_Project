@@ -48,6 +48,7 @@ public class ClientReceiver extends Thread {
 			
 		case "connectedUserList":
 			List<String> connectedUserList = (List<String>) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
+			ClientGUI.getInstance().setConnectedUserIndex(connectedUserList.indexOf(username));
 			ClientGUI.getInstance().getConnectedUserListModel().clear();
 			ClientGUI.getInstance().getConnectedUserListModel().addAll(connectedUserList);
 			break;
@@ -63,7 +64,7 @@ public class ClientReceiver extends Thread {
 			
 		case "updateUserList":
 			List<String> usernameList = (List<String>) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
-			ClientGUI.getInstance().setTARGET_INDEX(usernameList.indexOf(username));
+			ClientGUI.getInstance().setUserIndex(usernameList.indexOf(username));
 			usernameList.set(0, usernameList.get(0) + "(방장)");
 			ClientGUI.getInstance().getUserListModel().clear(); // 리스트 초기화 시키고		
 			ClientGUI.getInstance().getUserListModel().addAll(usernameList); // 새로 받아온 리스트를 addAll
