@@ -177,6 +177,17 @@ public class ServerReceiver extends Thread {
 				new RequestBodyDto<List<String>>("updateRoomList", roomNameList);
 
 		ServerSender.getInstance().send(socket, updateRoomListRequestBodyDto); // 자기 자신만 업데이트(forEach 안 씀)
+	
+		//첫화면 connectedUserList
+		List<String> connectedUserList = new ArrayList<>();
+		Server.serverReceiverList.forEach(con -> {
+			connectedUserList.add(con.username);
+		});
+		RequestBodyDto<List<String>> connectedUserListDto = 
+				new RequestBodyDto<List<String>>("connectedUserList", connectedUserList);
+		Server.serverReceiverList.forEach(con -> {
+			ServerSender.getInstance().send(con.socket, connectedUserListDto);
+		});
 	}
 
 	private void createRoom(String requestBody) {
