@@ -34,7 +34,12 @@ import lombok.Getter;
 import lombok.Setter;
 import socket_project_client.dto.RequestBodyDto;
 import socket_project_client.dto.SendMessage;
+<<<<<<< HEAD
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+=======
 import javax.swing.JRadioButton;
+>>>>>>> bjm
 
 @Getter // 모든 멤버 변수들에 Getter가 생성
 @Setter
@@ -253,7 +258,6 @@ public class ClientGUI extends JFrame {
 				RequestBodyDto<String> requestBodyDto = new RequestBodyDto<String>("quit", roomName);
 				ClientSender.getInstance().send(requestBodyDto);
 				mainCardLayout.show(mainCardPanel, "chattingRoomListPanel");
-				
 			}
 		});
 		roomQuitButton.setBounds(264, 9, 89, 24);
@@ -325,6 +329,19 @@ public class ClientGUI extends JFrame {
 		});
 		userListScrollPanel.setViewportView(userList);
 		
+<<<<<<< HEAD
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				RequestBodyDto<String> quitRoomRequestBodyDto = new RequestBodyDto<String>("quit", roomName);
+				ClientSender.getInstance().send(quitRoomRequestBodyDto);
+				
+				RequestBodyDto<String> disconnectedRequestBodyDto = new RequestBodyDto<String>("disconnected", username);
+				ClientSender.getInstance().send(disconnectedRequestBodyDto);
+			}
+		});
+
+=======
 		//RadioButton
 		entireRadioButton = new JRadioButton("전체");
 		entireRadioButton.setSelected(true);
@@ -340,6 +357,7 @@ public class ClientGUI extends JFrame {
 		ButtonGroup group = new ButtonGroup();
 		group.add(entireRadioButton);
 		group.add(whisperRadioButton);
+>>>>>>> bjm
 	}
 	
 	//RadioButton event
@@ -376,7 +394,6 @@ class CustomCellRenderer extends DefaultListCellRenderer {
                                                   boolean isSelected, boolean cellHasFocus) {
         Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         
-        System.out.println(targetIndex);
         if (index == targetIndex) {
             component.setForeground(new Color(29,132,255));
         } else {

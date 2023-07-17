@@ -46,7 +46,7 @@ public class ClientReceiver extends Thread {
 			ClientGUI.getInstance().getRoomListModel().addAll(roomList);
 			break;
 			
-		case "connectedUserList":
+		case "updateConnectedUserList":
 			List<String> connectedUserList = (List<String>) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
 			//로비의 connectedUserList 중 자신 이름 색 바꿔줌
 			ClientGUI.getInstance().getConnectedUserListcellRenderer().setTargetIndex(connectedUserList.indexOf(username));
