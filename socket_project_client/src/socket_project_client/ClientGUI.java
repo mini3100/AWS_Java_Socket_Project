@@ -138,7 +138,7 @@ public class ClientGUI extends JFrame {
 		
 		setTitle("Talk & Talk");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 500, 370);
+		setBounds(100, 100, 500, 530);
 
 		// << mainCard >>
 		mainCardLayout = new CardLayout();
@@ -153,20 +153,20 @@ public class ClientGUI extends JFrame {
 		mainCardPanel.add(chattingRoomListPanel, "chattingRoomListPanel");
 
 		JLabel titleLabel = new JLabel("Talk & Talk");
-		titleLabel.setFont(new Font("맑은 고딕", Font.BOLD, 18));
-		titleLabel.setBounds(12, 12, 105, 27);
+		titleLabel.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+		titleLabel.setBounds(12, 12, 191, 27);
 		chattingRoomListPanel.add(titleLabel);
 
 		userNameLabel = new JLabel();
 		
-		userNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		userNameLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		userNameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		userNameLabel.setBounds(118, 12, 141, 27);
+		userNameLabel.setBounds(12, 47, 253, 27);
 		chattingRoomListPanel.add(userNameLabel);
 
 		JButton createRoomButton = new JButton("방 만들기");
 		createRoomButton.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-		createRoomButton.setBounds(271, 14, 86, 27);
+		createRoomButton.setBounds(271, 47, 86, 27);
 		createRoomButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -196,7 +196,7 @@ public class ClientGUI extends JFrame {
 		chattingRoomListPanel.add(createRoomButton);
 		
 		roomListScrollPanel = new JScrollPane();
-		roomListScrollPanel.setBounds(12, 49, 345, 274);
+		roomListScrollPanel.setBounds(12, 84, 345, 399);
 		chattingRoomListPanel.add(roomListScrollPanel);
 		
 		roomListModel = new DefaultListModel<String>();
@@ -218,15 +218,16 @@ public class ClientGUI extends JFrame {
 		connectedUserLabel = new JLabel("전체 접속자");
 		connectedUserLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		connectedUserLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		connectedUserLabel.setBounds(368, 14, 106, 27);
+		connectedUserLabel.setBounds(369, 47, 106, 27);
 		chattingRoomListPanel.add(connectedUserLabel);
 		
 		connectedUserListScrollPanel = new JScrollPane();
-		connectedUserListScrollPanel.setBounds(369, 49, 105, 274);
+		connectedUserListScrollPanel.setBounds(369, 84, 105, 399);
 		chattingRoomListPanel.add(connectedUserListScrollPanel);
 		
 		connectedUserListModel = new DefaultListModel<String>();
 		connectedUserList = new JList(connectedUserListModel);
+		connectedUserList.setLocation(369, 0);
 		connectedUserListcellRenderer = new CustomCellRenderer();
 		connectedUserListScrollPanel.setViewportView(connectedUserList);
 		
@@ -239,13 +240,13 @@ public class ClientGUI extends JFrame {
 
 		roomNameLabel = new JLabel();
 		roomNameLabel.setFont(new Font("맑은 고딕", Font.BOLD, 15));
-		roomNameLabel.setBounds(12, 10, 89, 22);
+		roomNameLabel.setBounds(12, 10, 244, 24);
 		chattingRoomPanel.add(roomNameLabel);
 
 		JLabel userNameListLabel = new JLabel("참여 인원");
 		userNameListLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		userNameListLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		userNameListLabel.setBounds(365, 9, 109, 24);
+		userNameListLabel.setBounds(365, 44, 109, 24);
 		chattingRoomPanel.add(userNameListLabel);
 
 		JButton roomQuitButton = new JButton("나가기");
@@ -257,11 +258,11 @@ public class ClientGUI extends JFrame {
 				mainCardLayout.show(mainCardPanel, "chattingRoomListPanel");
 			}
 		});
-		roomQuitButton.setBounds(264, 9, 89, 24);
+		roomQuitButton.setBounds(362, 10, 109, 24);
 		chattingRoomPanel.add(roomQuitButton);
 
 		JScrollPane chattingTextAreaScrollPanel = new JScrollPane();
-		chattingTextAreaScrollPanel.setBounds(12, 42, 341, 237);
+		chattingTextAreaScrollPanel.setBounds(12, 70, 341, 368);
 		chattingRoomPanel.add(chattingTextAreaScrollPanel);
 
 		chattingTextArea = new JTextArea();
@@ -270,12 +271,12 @@ public class ClientGUI extends JFrame {
 		toUserNameLabel = new JLabel("전체");
 		toUserNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		toUserNameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		toUserNameLabel.setBounds(12, 289, 55, 34);
+		toUserNameLabel.setBounds(15, 449, 55, 34);
 		chattingRoomPanel.add(toUserNameLabel);
 
 		messageTextField = new JTextField();
 		messageTextField.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-		messageTextField.setBounds(79, 289, 395, 34);
+		messageTextField.setBounds(79, 449, 395, 34);
 		messageTextField.setColumns(10);
 		messageTextField.addKeyListener(new KeyAdapter() {
 			@Override
@@ -291,6 +292,10 @@ public class ClientGUI extends JFrame {
 						messageTextField.setText(""); // 전송후 텍스트필드 비우기		
 					}
 					else {	//귓속말모드로 메세지를 보낼 경우
+						if(userList.getSelectedIndex() == 0) {	//"(방장)" 제거
+							if(toUsername.contains("("))
+								toUsername = toUsername.substring(0,toUsername.indexOf("("));
+						}
 						SendMessage sendMessage = SendMessage.builder().fromUsername(username).toUsername(toUsername)
 								.messageBody(messageTextField.getText()).build();
 						RequestBodyDto<SendMessage> requestBodyDto = new RequestBodyDto<>("whisper", sendMessage);
@@ -304,11 +309,12 @@ public class ClientGUI extends JFrame {
 		chattingRoomPanel.add(messageTextField);
 
 		userListScrollPanel = new JScrollPane();
-		userListScrollPanel.setBounds(365, 42, 109, 237);
+		userListScrollPanel.setBounds(365, 70, 109, 368);
 		chattingRoomPanel.add(userListScrollPanel);
 
 		userListModel = new DefaultListModel<>();
 		userList = new JList(userListModel);
+		userList.setLocation(363, 0);
 		
 		userListcellRenderer = new CustomCellRenderer();
 		
@@ -339,13 +345,17 @@ public class ClientGUI extends JFrame {
 
 		//RadioButton
 		entireRadioButton = new JRadioButton("전체");
+		entireRadioButton.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
+		entireRadioButton.setBackground(new Color(253, 252, 244));
 		entireRadioButton.setSelected(true);
-		entireRadioButton.setBounds(133, 10, 49, 22);
+		entireRadioButton.setBounds(275, 10, 79, 22);
 		entireRadioButton.addItemListener(new MyItemListener());
 		chattingRoomPanel.add(entireRadioButton);
 		
 		whisperRadioButton = new JRadioButton("귓속말");
-		whisperRadioButton.setBounds(186, 10, 68, 22);
+		whisperRadioButton.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
+		whisperRadioButton.setBackground(new Color(253, 252, 244));
+		whisperRadioButton.setBounds(275, 39, 79, 22);
 		whisperRadioButton.addItemListener(new MyItemListener());
 		chattingRoomPanel.add(whisperRadioButton);
 		
@@ -364,15 +374,10 @@ public class ClientGUI extends JFrame {
 				ClientGUI.getInstance().getToUserNameLabel().setText("전체");
 			}
 			else if(whisperRadioButton.isSelected()){
-				if(userList.isSelectionEmpty()) {
-					userList.setSelectedIndex(0);
-					toUsername = userListModel.get(0);
-					ClientGUI.getInstance().getToUserNameLabel().setText(toUsername);
-					
-					if(userList.getSelectedIndex() == 0) {	//"(방장)" 제거
-						toUsername = toUsername.substring(0,toUsername.indexOf("("));
-					}
-				}
+				userList.setSelectedIndex(0);
+				toUsername = userListModel.get(0);
+				ClientGUI.getInstance().getToUserNameLabel().setText(toUsername);
+				
 				isWhisper = true;
 			}
 		}   
