@@ -69,8 +69,28 @@ public class ServerReceiver extends Thread {
 			
 		case "whisper":
 			whisper(requestBody);
+			break;
+			
+		case "disconnected":
+			disconnected(requestBody);
+			break;
 		}
 	}
+	private void disconnected(String requestBody) {
+		Server.serverReceiverList.remove(Server.serverReceiverList.indexOf(this));
+		
+		//첫화면 connectedUserList
+		List<String> connectedUserList = new ArrayList<>();
+		Server.serverReceiverList.forEach(con -> {
+			connectedUserList.add(con.username);
+		});
+		RequestBodyDto<List<String>> connectedUserListDto = 
+				new RequestBodyDto<List<String>>("updateConnectedUserList", connectedUserList);
+		Server.serverReceiverList.forEach(con -> {
+			ServerSender.getInstance().send(con.socket, connectedUserListDto);
+		});
+	}
+	
 	private void whisper(String requestBody) {
 //		username = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody(); // private 전역 변수에 저장
 		
@@ -187,7 +207,7 @@ public class ServerReceiver extends Thread {
 			connectedUserList.add(con.username);
 		});
 		RequestBodyDto<List<String>> connectedUserListDto = 
-				new RequestBodyDto<List<String>>("connectedUserList", connectedUserList);
+				new RequestBodyDto<List<String>>("updateConnectedUserList", connectedUserList);
 		Server.serverReceiverList.forEach(con -> {
 			ServerSender.getInstance().send(con.socket, connectedUserListDto);
 		});
