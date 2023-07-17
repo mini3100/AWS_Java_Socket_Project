@@ -11,6 +11,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
@@ -25,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -34,9 +37,6 @@ import lombok.Getter;
 import lombok.Setter;
 import socket_project_client.dto.RequestBodyDto;
 import socket_project_client.dto.SendMessage;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import javax.swing.JRadioButton;
 
 @Getter // 모든 멤버 변수들에 Getter가 생성
 @Setter
@@ -88,9 +88,6 @@ public class ClientGUI extends JFrame {
 	private JRadioButton whisperRadioButton;
 	private JLabel toUserNameLabel;
 
-	/**
-	 * Launch the application.
-	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -111,9 +108,6 @@ public class ClientGUI extends JFrame {
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
 	private ClientGUI() {
 		isWhisper = false;
 		username = JOptionPane.showInputDialog(mainCardPanel, "아이디를 입력하세요");
@@ -231,7 +225,6 @@ public class ClientGUI extends JFrame {
 		connectedUserListcellRenderer = new CustomCellRenderer();
 		connectedUserListScrollPanel.setViewportView(connectedUserList);
 		
-		
 		// << chattingRoom >>
 		chattingRoomPanel = new JPanel();
 		chattingRoomPanel.setBackground(new Color(253, 252, 244));
@@ -315,9 +308,7 @@ public class ClientGUI extends JFrame {
 		userListModel = new DefaultListModel<>();
 		userList = new JList(userListModel);
 		userList.setLocation(363, 0);
-		
 		userListcellRenderer = new CustomCellRenderer();
-		
 		userList.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -332,17 +323,6 @@ public class ClientGUI extends JFrame {
 		});
 		userListScrollPanel.setViewportView(userList);
 		
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				RequestBodyDto<String> quitRoomRequestBodyDto = new RequestBodyDto<String>("quit", roomName);
-				ClientSender.getInstance().send(quitRoomRequestBodyDto);
-				
-				RequestBodyDto<String> disconnectedRequestBodyDto = new RequestBodyDto<String>("disconnected", username);
-				ClientSender.getInstance().send(disconnectedRequestBodyDto);
-			}
-		});
-
 		//RadioButton
 		entireRadioButton = new JRadioButton("전체");
 		entireRadioButton.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
@@ -362,6 +342,18 @@ public class ClientGUI extends JFrame {
 		ButtonGroup group = new ButtonGroup();
 		group.add(entireRadioButton);
 		group.add(whisperRadioButton);
+
+		//windowClosing시 user 삭제
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				RequestBodyDto<String> quitRoomRequestBodyDto = new RequestBodyDto<String>("quit", roomName);
+				ClientSender.getInstance().send(quitRoomRequestBodyDto);
+				
+				RequestBodyDto<String> disconnectionRequestBodyDto = new RequestBodyDto<String>("disconnection", username);
+				ClientSender.getInstance().send(disconnectionRequestBodyDto);
+			}
+		});
 	}
 	
 	//RadioButton event
@@ -382,23 +374,24 @@ public class ClientGUI extends JFrame {
 			}
 		}   
 	}
-}
+	
+	@Setter 
+	class CustomCellRenderer extends DefaultListCellRenderer {
+		    
+		private int targetIndex;
+	    @Override
+	    public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+	                                                  boolean isSelected, boolean cellHasFocus) {
+	        Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+	        
+	        if (index == targetIndex) {
+	            component.setForeground(new Color(29,132,255));
+	        } else {
+	            component.setForeground(Color.BLACK);
+	        }
+	        
+	        return component;
+	    }
+	}
 
-@Setter 
-class CustomCellRenderer extends DefaultListCellRenderer {
-	    
-	private int targetIndex;
-    @Override
-    public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                  boolean isSelected, boolean cellHasFocus) {
-        Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-        
-        if (index == targetIndex) {
-            component.setForeground(new Color(29,132,255));
-        } else {
-            component.setForeground(Color.BLACK);
-        }
-        
-        return component;
-    }
 }
