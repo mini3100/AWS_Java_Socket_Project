@@ -46,6 +46,12 @@ public class ClientReceiver extends Thread {
 			ClientGUI.getInstance().getRoomListModel().addAll(roomList);
 			break;
 			
+		case "connectedUserList":
+			List<String> connectedUserList = (List<String>) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
+			ClientGUI.getInstance().getConnectedUserListModel().clear();
+			ClientGUI.getInstance().getConnectedUserListModel().addAll(connectedUserList);
+			break;
+			
 		case "clearTextArea":
 			ClientGUI.getInstance().getChattingTextArea().setText("");
 			break;
