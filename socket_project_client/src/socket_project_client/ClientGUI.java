@@ -2,6 +2,7 @@ package socket_project_client;
 
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.KeyAdapter;
@@ -13,6 +14,7 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.util.Objects;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -26,10 +28,12 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import lombok.Getter;
+import lombok.Setter;
 import socket_project_client.dto.RequestBodyDto;
 import socket_project_client.dto.SendMessage;
 
 @Getter // 모든 멤버 변수들에 Getter가 생성
+@Setter
 public class ClientGUI extends JFrame {
 
 	// 싱글톤
@@ -48,6 +52,7 @@ public class ClientGUI extends JFrame {
 	private Socket socket;
 	private boolean isWhisper;
 	private String toUsername;	//귓속말 채팅받는 사람
+	private int TARGET_INDEX;
 
 	// mainCard
 	private CardLayout mainCardLayout;
@@ -62,6 +67,7 @@ public class ClientGUI extends JFrame {
 	private JList roomList;
 	private DefaultListModel<String> connectedUserListModel;
 	private JList connectedUserList;
+	private DefaultListCellRenderer cellRenderer;
 
 	// chattingRoom
 	private JPanel chattingRoomPanel;
@@ -293,6 +299,27 @@ public class ClientGUI extends JFrame {
 
 		userListModel = new DefaultListModel<>();
 		userList = new JList(userListModel);
+		
+		cellRenderer = new DefaultListCellRenderer() {
+		    
+		    @Override
+		    public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+		                                                  boolean isSelected, boolean cellHasFocus) {
+		        Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+		        
+		        // Check if this is the target element
+		        if (index == TARGET_INDEX) {
+		            component.setForeground(new Color(29,132,255));
+		        } else {
+		            component.setForeground(Color.BLACK);
+		        }
+		        
+		        return component;
+		    }
+		};
+		
+		userList.setCellRenderer(cellRenderer);
+		
 		userList.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {

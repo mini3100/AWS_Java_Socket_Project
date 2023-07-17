@@ -10,11 +10,11 @@ import com.google.gson.Gson;
 import socket_project_client.dto.RequestBodyDto;
 
 public class ClientReceiver extends Thread {
-
+	private String username;
 	@Override
 	public void run() {
 		ClientGUI clientGUI = ClientGUI.getInstance();
-		String username = ClientGUI.getInstance().getUsername();
+		username = ClientGUI.getInstance().getUsername();
 		ClientGUI.getInstance().getUserNameLabel().setText(username + "님 환영합니다!");
 		while (true) {
 			try {
@@ -57,6 +57,7 @@ public class ClientReceiver extends Thread {
 			
 		case "updateUserList":
 			List<String> usernameList = (List<String>) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
+			ClientGUI.getInstance().setTARGET_INDEX(usernameList.indexOf(username));
 			usernameList.set(0, usernameList.get(0) + "(방장)");
 			ClientGUI.getInstance().getUserListModel().clear(); // 리스트 초기화 시키고		
 			ClientGUI.getInstance().getUserListModel().addAll(usernameList); // 새로 받아온 리스트를 addAll
