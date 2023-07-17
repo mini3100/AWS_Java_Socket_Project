@@ -56,9 +56,12 @@ public class ClientGUI extends JFrame {
 	// chattingRoomList
 	private JPanel chattingRoomListPanel;
 	private JScrollPane roomListScrollPanel;
+	private JScrollPane connectedUserListScrollPanel;
 	private JLabel userNameLabel;
 	private DefaultListModel<String> roomListModel;
 	private JList roomList;
+	private DefaultListModel<String> connectedUserListModel;
+	private JList connectedUserList;
 
 	// chattingRoom
 	private JPanel chattingRoomPanel;
@@ -177,7 +180,7 @@ public class ClientGUI extends JFrame {
 		chattingRoomListPanel.add(createRoomButton);
 		
 		roomListScrollPanel = new JScrollPane();
-		roomListScrollPanel.setBounds(12, 49, 462, 274);
+		roomListScrollPanel.setBounds(12, 49, 345, 274);
 		chattingRoomListPanel.add(roomListScrollPanel);
 		
 		roomListModel = new DefaultListModel<String>();
@@ -195,6 +198,14 @@ public class ClientGUI extends JFrame {
 		});
 		roomListScrollPanel.setViewportView(roomList);
 
+		connectedUserListScrollPanel = new JScrollPane();
+		connectedUserListScrollPanel.setBounds(369, 49, 105, 274);
+		chattingRoomListPanel.add(connectedUserListScrollPanel);
+		
+		connectedUserListModel = new DefaultListModel<String>();
+		connectedUserList = new JList(connectedUserListModel);
+		connectedUserListScrollPanel.setViewportView(connectedUserList);
+		
 		// << chattingRoom >>
 		chattingRoomPanel = new JPanel();
 		chattingRoomPanel.setBackground(new Color(253, 252, 244));
