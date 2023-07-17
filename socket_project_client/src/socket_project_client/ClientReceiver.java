@@ -37,7 +37,7 @@ public class ClientReceiver extends Thread {
 		switch (resource) {
 		case "updateRoomName":
 			String roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
-			ClientGUI.getInstance().getRoomNameLabel().setText(roomName);
+			ClientGUI.getInstance().getRoomNameLabel().setText("[ " + roomName + " ]");
 			break;
 			
 		case "updateRoomList":

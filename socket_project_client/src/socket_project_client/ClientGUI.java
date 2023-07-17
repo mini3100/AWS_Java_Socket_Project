@@ -77,6 +77,7 @@ public class ClientGUI extends JFrame {
 	private JScrollPane userListScrollPanel;
 	private DefaultListModel<String> userListModel;
 	private JList userList;
+	private JLabel connectedUserLabel;
 
 	/**
 	 * Launch the application.
@@ -144,19 +145,19 @@ public class ClientGUI extends JFrame {
 
 		JLabel titleLabel = new JLabel("Talk & Talk");
 		titleLabel.setFont(new Font("맑은 고딕", Font.BOLD, 18));
-		titleLabel.setBounds(12, 12, 122, 27);
+		titleLabel.setBounds(12, 12, 105, 27);
 		chattingRoomListPanel.add(titleLabel);
 
 		userNameLabel = new JLabel();
 		
 		userNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		userNameLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		userNameLabel.setBounds(146, 12, 211, 27);
+		userNameLabel.setBounds(118, 12, 141, 27);
 		chattingRoomListPanel.add(userNameLabel);
 
-		JButton createRoomButton = new JButton("방 생성");
-		createRoomButton.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		createRoomButton.setBounds(369, 13, 105, 27);
+		JButton createRoomButton = new JButton("방 만들기");
+		createRoomButton.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		createRoomButton.setBounds(271, 14, 86, 27);
 		createRoomButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -212,6 +213,12 @@ public class ClientGUI extends JFrame {
 		connectedUserList = new JList(connectedUserListModel);
 		connectedUserListScrollPanel.setViewportView(connectedUserList);
 		
+		connectedUserLabel = new JLabel("전체 접속자");
+		connectedUserLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		connectedUserLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
+		connectedUserLabel.setBounds(368, 14, 106, 27);
+		chattingRoomListPanel.add(connectedUserLabel);
+		
 		// << chattingRoom >>
 		chattingRoomPanel = new JPanel();
 		chattingRoomPanel.setBackground(new Color(253, 252, 244));
@@ -223,7 +230,8 @@ public class ClientGUI extends JFrame {
 		roomNameLabel.setBounds(12, 10, 220, 22);
 		chattingRoomPanel.add(roomNameLabel);
 
-		JLabel userNameListLabel = new JLabel("접속 유저");
+		JLabel userNameListLabel = new JLabel("참여 인원");
+		userNameListLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		userNameListLabel.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		userNameListLabel.setBounds(365, 9, 109, 24);
 		chattingRoomPanel.add(userNameListLabel);

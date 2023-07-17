@@ -87,7 +87,10 @@ public class ServerReceiver extends Thread {
 					
 					if (con.username.equals(toUsername)
 							||con.username.equals(fromUsername)) {
-						if (con.username.equals(fromUsername)) {
+						if (toUsername.equals(fromUsername)) {
+							toUsername = fromUsername = "나";
+						}
+						else if (con.username.equals(fromUsername)) {
 							if(fromUsername.equals(username)) 
 								fromUsername = "나";
 						}
@@ -95,7 +98,7 @@ public class ServerReceiver extends Thread {
 							toUsername = "나";
 						}
 						RequestBodyDto<String> dto = new RequestBodyDto<String>("showMessage"
-								,fromUsername + " -> " + toUsername + " : " + sendMessage.getMessageBody());
+								,"[ " + fromUsername + " → " + toUsername + " ] : " + sendMessage.getMessageBody());
 						
 						ServerSender.getInstance().send(con.socket, dto);
 					}
@@ -284,7 +287,7 @@ public class ServerReceiver extends Thread {
 			if (room.getUserList().contains(this)) {	
 				room.getUserList().forEach(ServerReceiver -> {
 					RequestBodyDto<String> dto = new RequestBodyDto<String>("showMessage",
-							sendMessage.getFromUsername() + ": " + sendMessage.getMessageBody());
+							"[ " + sendMessage.getFromUsername() + " ] : " + sendMessage.getMessageBody());
 					ServerSender.getInstance().send(ServerReceiver.socket, dto);
 				});
 			}
