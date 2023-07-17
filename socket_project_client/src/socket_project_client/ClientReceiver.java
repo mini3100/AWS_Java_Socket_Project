@@ -48,7 +48,10 @@ public class ClientReceiver extends Thread {
 			
 		case "connectedUserList":
 			List<String> connectedUserList = (List<String>) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
-			ClientGUI.getInstance().setConnectedUserIndex(connectedUserList.indexOf(username));
+			//로비의 connectedUserList 중 자신 이름 색 바꿔줌
+			ClientGUI.getInstance().getConnectedUserListcellRenderer().setTargetIndex(connectedUserList.indexOf(username));
+			ClientGUI.getInstance().getConnectedUserList().setCellRenderer(ClientGUI.getInstance().getConnectedUserListcellRenderer());
+			
 			ClientGUI.getInstance().getConnectedUserListModel().clear();
 			ClientGUI.getInstance().getConnectedUserListModel().addAll(connectedUserList);
 			break;
@@ -64,13 +67,13 @@ public class ClientReceiver extends Thread {
 			
 		case "updateUserList":
 			List<String> usernameList = (List<String>) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
-			ClientGUI.getInstance().setUserIndex(usernameList.indexOf(username));
+			//방 안의 userList 중 자신 이름 색 바꿔줌
+			ClientGUI.getInstance().getUserListcellRenderer().setTargetIndex(usernameList.indexOf(username));
+			ClientGUI.getInstance().getUserList().setCellRenderer(ClientGUI.getInstance().getUserListcellRenderer());
+			//List의 0번째 인덱스가 방장이 됨
 			usernameList.set(0, usernameList.get(0) + "(방장)");
 			ClientGUI.getInstance().getUserListModel().clear(); // 리스트 초기화 시키고		
 			ClientGUI.getInstance().getUserListModel().addAll(usernameList); // 새로 받아온 리스트를 addAll
-			//owner를 사용하지 않고 userList[0]의 username + (방장)
-			//userList가 업데이트 되면 또 list[0]번 업데이트
-			//userList size == 0 이면 방 삭제 -> roomList에서 삭제
 			break;
 			
 		}

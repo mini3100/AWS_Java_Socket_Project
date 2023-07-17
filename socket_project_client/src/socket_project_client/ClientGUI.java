@@ -52,8 +52,6 @@ public class ClientGUI extends JFrame {
 	private Socket socket;
 	private boolean isWhisper;
 	private String toUsername;	//귓속말 채팅받는 사람
-	private int connectedUserIndex;
-	private int userIndex;
 
 	// mainCard
 	private CardLayout mainCardLayout;
@@ -68,7 +66,7 @@ public class ClientGUI extends JFrame {
 	private JList roomList;
 	private DefaultListModel<String> connectedUserListModel;
 	private JList connectedUserList;
-	private DefaultListCellRenderer connectedUserListcellRenderer;
+	private CustomCellRenderer connectedUserListcellRenderer;
 
 	// chattingRoom
 	private JPanel chattingRoomPanel;
@@ -79,7 +77,7 @@ public class ClientGUI extends JFrame {
 	private DefaultListModel<String> userListModel;
 	private JList userList;
 	private JLabel connectedUserLabel;
-	private DefaultListCellRenderer UserListcellRenderer;
+	private CustomCellRenderer userListcellRenderer;
 
 	/**
 	 * Launch the application.
@@ -219,26 +217,7 @@ public class ClientGUI extends JFrame {
 		
 		connectedUserListModel = new DefaultListModel<String>();
 		connectedUserList = new JList(connectedUserListModel);
-		
-		connectedUserListcellRenderer = new DefaultListCellRenderer() {
-			
-			@Override
-			public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-					boolean isSelected, boolean cellHasFocus) {
-				Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				
-				// Check if this is the target element
-				if (index == connectedUserIndex) {
-					component.setForeground(new Color(29,132,255));
-				} else {
-					component.setForeground(Color.BLACK);
-				}
-				
-				return component;
-			}
-		};
-		
-		connectedUserList.setCellRenderer(connectedUserListcellRenderer);
+		connectedUserListcellRenderer = new CustomCellRenderer();
 		connectedUserListScrollPanel.setViewportView(connectedUserList);
 		
 		
@@ -331,25 +310,7 @@ public class ClientGUI extends JFrame {
 		userListModel = new DefaultListModel<>();
 		userList = new JList(userListModel);
 		
-		UserListcellRenderer = new DefaultListCellRenderer() {
-		    
-		    @Override
-		    public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-		                                                  boolean isSelected, boolean cellHasFocus) {
-		        Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-		        
-		        // Check if this is the target element
-		        if (index == userIndex) {
-		            component.setForeground(new Color(29,132,255));
-		        } else {
-		            component.setForeground(Color.BLACK);
-		        }
-		        
-		        return component;
-		    }
-		};
-		
-		userList.setCellRenderer(UserListcellRenderer);
+		userListcellRenderer = new CustomCellRenderer();
 		
 		userList.addMouseListener(new MouseAdapter() {
 			@Override
@@ -365,4 +326,24 @@ public class ClientGUI extends JFrame {
 		userListScrollPanel.setViewportView(userList);
 
 	}
+	
+}
+@Setter 
+class CustomCellRenderer extends DefaultListCellRenderer {
+	    
+	private int targetIndex;
+    @Override
+    public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                  boolean isSelected, boolean cellHasFocus) {
+        Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        
+        System.out.println(targetIndex);
+        if (index == targetIndex) {
+            component.setForeground(new Color(29,132,255));
+        } else {
+            component.setForeground(Color.BLACK);
+        }
+        
+        return component;
+    }
 }
