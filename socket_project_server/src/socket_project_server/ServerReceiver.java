@@ -8,6 +8,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -60,10 +61,6 @@ public class ServerReceiver extends Thread {
 
 		case "sendMessage":
 			sendMessage(requestBody);
-			break;
-			
-		case "whisper":
-			whisper(requestBody);
 			break;
 			
 		case "quit":
@@ -185,12 +182,49 @@ public class ServerReceiver extends Thread {
 	}
 
 	private void sendMessage(String requestBody) {
-		TypeToken<RequestBodyDto<SendMessage>> typeToken = new TypeToken<>() {
-		};
+		TypeToken<RequestBodyDto<SendMessage>> typeToken = new TypeToken<>() { };
 		RequestBodyDto<SendMessage> requestBodyDto = gson.fromJson(requestBody, typeToken.getType());
 		// RequestBodyDto의 제네릭 타입까지 SendMessage로 바꾸려면 typeToken을 쓰는 것이 필요
 		SendMessage sendMessage = requestBodyDto.getBody();
-
+		if(!Objects.isNull(sendMessage.getToUsername())) {	//toUsername이 null이 아닌가? -> 귓속말
+			whisper(sendMessage);
+			return;
+		}
+		sendMessageAll(sendMessage);
+	}
+	
+	private void whisper(SendMessage sendMessage) {
+		Server.roomList.forEach(room -> {
+			if (room.getRoomName().equals(roomName)) { // 들어가고자 하는 방 이름과 같은가?
+				room.getUserList().forEach(con -> { // 방 안의 유저 이름 리스트
+					String toUsername = sendMessage.getToUsername();
+					String fromUsername = sendMessage.getFromUsername();
+					
+					if (con.username.equals(toUsername) || con.username.equals(fromUsername)) {
+						
+						if (toUsername.equals(fromUsername)) {
+							toUsername = fromUsername = "나";
+						}
+						
+						else if (con.username.equals(fromUsername)) {
+							fromUsername = "나";
+						}
+						
+						else {
+							toUsername = "나";
+						}
+						
+						RequestBodyDto<String> dto = new RequestBodyDto<String>("showMessage"
+								,"[ " + fromUsername + " → " + toUsername + " ] : " + sendMessage.getMessageBody());
+						
+						ServerSender.getInstance().send(con.socket, dto);
+					}
+				});
+			}
+		});
+	}
+	
+	private void sendMessageAll(SendMessage sendMessage) {
 		Server.roomList.forEach(room -> {	//roomList의 room객체 - userList<ServerReceiver>
 			//userList 안에 해당 클라이언트의 ServerReceiver이 들어 있는지 : 방 안에 유저가 있는지
 			if (room.getUserList().contains(this)) {	
@@ -198,40 +232,6 @@ public class ServerReceiver extends Thread {
 					RequestBodyDto<String> dto = new RequestBodyDto<String>("showMessage",
 							"[ " + sendMessage.getFromUsername() + " ] : " + sendMessage.getMessageBody());
 					ServerSender.getInstance().send(ServerReceiver.socket, dto);
-				});
-			}
-		});
-	}
-	
-	private void whisper(String requestBody) {
-		TypeToken<RequestBodyDto<SendMessage>> typeToken = new TypeToken<>() {
-		};
-		RequestBodyDto<SendMessage> requestBodyDto = gson.fromJson(requestBody, typeToken.getType());
-		// RequestBodyDto의 제네릭 타입까지 SendMessage로 바꾸려면 typeToken을 쓰는 것이 필요
-		SendMessage sendMessage = requestBodyDto.getBody();
-		
-		Server.roomList.forEach(room -> {
-			if (room.getRoomName().equals(roomName)) { // 들어가고자 하는 방 이름과 같은가?
-				room.getUserList().forEach(con -> { // 방 안의 유저 이름 리스트
-					String toUsername = sendMessage.getToUsername(), fromUsername = sendMessage.getFromUsername();
-					
-					if (con.username.equals(toUsername)
-							||con.username.equals(fromUsername)) {
-						if (toUsername.equals(fromUsername)) {
-							toUsername = fromUsername = "나";
-						}
-						else if (con.username.equals(fromUsername)) {
-							if(fromUsername.equals(username)) 
-								fromUsername = "나";
-						}
-						else {
-							toUsername = "나";
-						}
-						RequestBodyDto<String> dto = new RequestBodyDto<String>("showMessage"
-								,"[ " + fromUsername + " → " + toUsername + " ] : " + sendMessage.getMessageBody());
-						
-						ServerSender.getInstance().send(con.socket, dto);
-					}
 				});
 			}
 		});

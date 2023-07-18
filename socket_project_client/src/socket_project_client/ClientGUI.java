@@ -281,27 +281,18 @@ public class ClientGUI extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					if(isWhisper == false) {
-						SendMessage sendMessage = SendMessage.builder().fromUsername(username)
+					RequestBodyDto<SendMessage> requestBodyDto = null;
+					SendMessage sendMessage;
+					sendMessage = SendMessage.builder().fromUsername(username)
 								.messageBody(messageTextField.getText()).build();
-						RequestBodyDto<SendMessage> requestBodyDto = new RequestBodyDto<>("sendMessage", sendMessage);
-						
-						ClientSender.getInstance().send(requestBodyDto);
-						
-						messageTextField.setText(""); // 전송후 텍스트필드 비우기		
-					}
-					else {	//귓속말모드로 메세지를 보낼 경우
-						if(userList.getSelectedIndex() == 0) {	//"(방장)" 제거
-							if(toUsername.contains("("))
-								toUsername = toUsername.substring(0,toUsername.indexOf("("));
-						}
-						SendMessage sendMessage = SendMessage.builder().fromUsername(username).toUsername(toUsername)
+					if(isWhisper) {
+						String toUsername = userListModel.get(userList.getSelectedIndex()).replace("(방장)", "");
+						sendMessage = SendMessage.builder().fromUsername(username).toUsername(toUsername)
 								.messageBody(messageTextField.getText()).build();
-						RequestBodyDto<SendMessage> requestBodyDto = new RequestBodyDto<>("whisper", sendMessage);
-						ClientSender.getInstance().send(requestBodyDto);
-						
-						messageTextField.setText(""); // 전송후 텍스트필드 비우기
 					}
+					requestBodyDto = new RequestBodyDto<>("sendMessage", sendMessage);
+					ClientSender.getInstance().send(requestBodyDto);
+					messageTextField.setText(""); // 전송후 텍스트필드 비우기
 				}
 			}
 		});
