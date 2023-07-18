@@ -376,6 +376,7 @@ public class ClientGUI extends JFrame {
 				
 				isWhisper = true;
 			}
+			messageTextField.requestFocus();
 		}   
 	}
 	
