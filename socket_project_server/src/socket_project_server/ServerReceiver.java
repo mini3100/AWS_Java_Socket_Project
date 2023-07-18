@@ -250,8 +250,8 @@ public class ServerReceiver extends Thread {
 				
 				room.getUserList().remove(this); // 자기 자신(ServerReceiver)을 userList에 삭제
 				
-				if(room.getUserList().size() != 0) {	//해당 room의 userList size가 0이 될 시
-					//room이 삭제됐을 시에는 방 안의 유저 이름 리스트 업데이트
+				if(room.getUserList().size() != 0) {	//해당 room의 userList size가 0이 아닐시
+					//방 안의 유저 이름 리스트 업데이트
 					List<String> usernameList = new ArrayList<>();
 					
 					//usernameList update
@@ -277,7 +277,7 @@ public class ServerReceiver extends Thread {
 						ServerSender.getInstance().send(serverReceiver.socket, quitMessageDto);
 					});
 				}
-				else {
+				else {	////해당 room의 userList size가 0일 시 -> 방 폭파
 					Server.roomList.remove(index);	//roomList에서의 해당 room 인덱스 삭제
 					//roomListUpdate
 					List<String> roomNameList = new ArrayList<>(); // 방 이름들을 담는 list
