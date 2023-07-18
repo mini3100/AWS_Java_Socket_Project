@@ -138,34 +138,40 @@ public class ServerReceiver extends Thread {
 			if (room.getRoomName().equals(roomName)) { // 들어가고자 하는 방 이름과 같은가?
 				room.getUserList().add(this); // 자기 자신(ServerReceiver)을 userList에 추가
 
-				List<String> usernameList = new ArrayList<>();
-
-				room.getUserList().forEach(con -> { // 방 안의 유저 이름 리스트
-					usernameList.add(con.username);
-				});
-
-				room.getUserList().forEach(serverReceiver -> { // 방 안의 사람들에게만 유저리스트 업데이트, 접속메시지 전송
-					//userList update
-					RequestBodyDto<List<String>> updateUserListDto = 
-							new RequestBodyDto<List<String>>("updateUserList", usernameList);
-					
-					//send join message
-					RequestBodyDto<String> joinMessageDto = 
-							new RequestBodyDto<String>("showMessage", username + "님이 접속했습니다.");
-
-					ServerSender.getInstance().send(serverReceiver.socket, updateUserListDto);
-					try {
-						Thread.sleep(100); // send가 동시에 동작하게 되면 밑에게 동작 안할 수도 있음
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					ServerSender.getInstance().send(serverReceiver.socket, joinMessageDto);
-				});
-
+				//메소드로 분리
+				updateJoinRoomUserList(room);	//update UserList
+				sendJoinRoomMessage(room);		//send joinMessage
 			}
 		});
 	}
+	
+	private void updateJoinRoomUserList(Room room) {
+		//update UserList
+		List<String> usernameList = new ArrayList<>();
+		
+		room.getUserList().forEach(con -> { // 방 안의 유저 이름 리스트
+			usernameList.add(con.username);
+		});
 
+		RequestBodyDto<List<String>> updateUserListDto = 
+				new RequestBodyDto<List<String>>("updateUserList", usernameList);
+		
+		room.getUserList().forEach(serverReceiver -> {
+			ServerSender.getInstance().send(serverReceiver.socket, updateUserListDto);
+		});
+		
+	}
+
+	private void sendJoinRoomMessage(Room room) {
+		room.getUserList().forEach(serverReceiver -> { // 방 안의 사람들에게만 유저리스트 업데이트, 접속메시지 전송
+			//send join message
+			RequestBodyDto<String> joinMessageDto = 
+					new RequestBodyDto<String>("showMessage", username + "님이 접속했습니다.");
+
+			ServerSender.getInstance().send(serverReceiver.socket, joinMessageDto);
+		});
+	}
+	
 	private void sendMessage(String requestBody) {
 		TypeToken<RequestBodyDto<SendMessage>> typeToken = new TypeToken<>() { };
 		RequestBodyDto<SendMessage> requestBodyDto = gson.fromJson(requestBody, typeToken.getType());
