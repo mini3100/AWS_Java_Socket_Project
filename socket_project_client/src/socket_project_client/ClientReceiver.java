@@ -63,6 +63,8 @@ public class ClientReceiver extends Thread {
 		case "showMessage":
 			String messageContent = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
 			ClientGUI.getInstance().getChattingTextArea().append(messageContent + "\n");
+			//스크롤 맨 아래로 가도록
+			ClientGUI.getInstance().getChattingTextArea().setCaretPosition(ClientGUI.getInstance().getChattingTextArea().getDocument().getLength());
 			break;
 			
 		case "updateUserList":
