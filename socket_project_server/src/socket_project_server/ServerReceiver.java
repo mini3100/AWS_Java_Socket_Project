@@ -76,17 +76,12 @@ public class ServerReceiver extends Thread {
 	private void connection(String requestBody) {
 		// 접속 될 때 ServerReceiver마다 username을 부여
 		username = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody(); // private 전역 변수에 저장
-		// 접속 했을 때 서버에 저장된 roomList가 뜨도록
-		List<String> roomNameList = new ArrayList<>();
-		Server.roomList.forEach(room -> {
-			roomNameList.add(room.getRoomName());
-		});
-
-		RequestBodyDto<List<String>> updateRoomListRequestBodyDto = 
-				new RequestBodyDto<List<String>>("updateRoomList", roomNameList);
-
-		ServerSender.getInstance().send(socket, updateRoomListRequestBodyDto); // 자기 자신만 업데이트(forEach 안 씀)
+		// 메소드 분리
+		updateRoomList(true);
+		updateConnectedUserList();
+	}
 	
+	private void updateConnectedUserList() {
 		//첫화면 connectedUserList
 		List<String> connectedUserList = new ArrayList<>();
 		Server.serverReceiverList.forEach(con -> {
@@ -96,6 +91,24 @@ public class ServerReceiver extends Thread {
 				new RequestBodyDto<List<String>>("updateConnectedUserList", connectedUserList);
 		Server.serverReceiverList.forEach(con -> {
 			ServerSender.getInstance().send(con.socket, connectedUserListDto);
+		});
+	}
+	
+	private void updateRoomList(boolean isConnection) {
+		List<String> roomNameList = new ArrayList<>();
+		Server.roomList.forEach(room -> {
+			roomNameList.add(room.getRoomName());
+		});
+		RequestBodyDto<List<String>> updateRoomListRequestBodyDto = 
+				new RequestBodyDto<List<String>>("updateRoomList", roomNameList);
+		
+		if(isConnection) {	//접속시엔 자기 자신만 업데이트
+			ServerSender.getInstance().send(socket, updateRoomListRequestBodyDto); // 자기 자신만 업데이트(forEach 안 씀)
+			return;
+		}
+		//모두 업데이트
+		Server.serverReceiverList.forEach(serverReceiver -> {
+			ServerSender.getInstance().send(serverReceiver.socket, updateRoomListRequestBodyDto);
 		});
 	}
 
@@ -112,17 +125,7 @@ public class ServerReceiver extends Thread {
 		
 		Server.roomList.add(newRoom);
 
-		List<String> roomNameList = new ArrayList<>(); // 방 이름들을 담는 list
-		Server.roomList.forEach(room -> {
-			roomNameList.add(room.getRoomName());
-		});
-
-		RequestBodyDto<List<String>> updateRoomListRequestBodyDto 
-				= new RequestBodyDto<List<String>>("updateRoomList", roomNameList);
-
-		Server.serverReceiverList.forEach(con -> {
-			ServerSender.getInstance().send(con.socket, updateRoomListRequestBodyDto);
-		});
+		updateRoomList(false);
 		
 		List<String> usernameList = new ArrayList<>();
 		usernameList.add(username);
@@ -139,13 +142,13 @@ public class ServerReceiver extends Thread {
 				room.getUserList().add(this); // 자기 자신(ServerReceiver)을 userList에 추가
 
 				//메소드로 분리
-				updateJoinRoomUserList(room);	//update UserList
-				sendJoinRoomMessage(room);		//send joinMessage
+				updateRoomUserList(room);	//update UserList
+				sendJoinAndQuitRoomMessage(room, username + "님이 접속했습니다.");		//send joinMessage
 			}
 		});
 	}
 	
-	private void updateJoinRoomUserList(Room room) {
+	private void updateRoomUserList(Room room) {
 		//update UserList
 		List<String> usernameList = new ArrayList<>();
 		
@@ -162,11 +165,11 @@ public class ServerReceiver extends Thread {
 		
 	}
 
-	private void sendJoinRoomMessage(Room room) {
+	private void sendJoinAndQuitRoomMessage(Room room, String message) {
 		room.getUserList().forEach(serverReceiver -> { // 방 안의 사람들에게만 유저리스트 업데이트, 접속메시지 전송
 			//send join message
 			RequestBodyDto<String> joinMessageDto = 
-					new RequestBodyDto<String>("showMessage", username + "님이 접속했습니다.");
+					new RequestBodyDto<String>("showMessage", message);
 
 			ServerSender.getInstance().send(serverReceiver.socket, joinMessageDto);
 		});
@@ -233,71 +236,28 @@ public class ServerReceiver extends Thread {
 
 		Iterator<Room> iterator = Server.roomList.iterator();
 		
-		while(iterator.hasNext()) {
-			Room room = iterator.next();
-			
+		for(Room room : Server.roomList) {	//향상된 for문
 			if (room.getRoomName().equals(roomName)) { // 나가고자 하는 방 이름과 같은가?
-				int index = Server.roomList.indexOf(room);	//roomList에서의 해당 room 인덱스 저장
 				
 				room.getUserList().remove(this); // 자기 자신(ServerReceiver)을 userList에 삭제
 				
-				if(room.getUserList().size() != 0) {	//해당 room의 userList size가 0이 아닐시
-					//방 안의 유저 이름 리스트 업데이트
-					List<String> usernameList = new ArrayList<>();
-					
-					//usernameList update
-					room.getUserList().forEach(con -> {
-						usernameList.add(con.username);
-					});
-	
-					room.getUserList().forEach(serverReceiver -> { //방 안의 사람들에게만 userListUpdate 하고 퇴장 메시지 전송
-						//userList update
-						RequestBodyDto<List<String>> updateUserListDto = 
-								new RequestBodyDto<List<String>>("updateUserList", usernameList);
-						
-						//send quit message
-						RequestBodyDto<String> quitMessageDto = 
-								new RequestBodyDto<String>("showMessage", username + "님이 퇴장하셨습니다.");
-	
-						ServerSender.getInstance().send(serverReceiver.socket, updateUserListDto);
-						try {
-							Thread.sleep(100); // send가 동시에 동작하게 되면 밑에게 동작 안할 수도 있음
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						ServerSender.getInstance().send(serverReceiver.socket, quitMessageDto);
-					});
-				}
-				else {	////해당 room의 userList size가 0일 시 -> 방 폭파
-					Server.roomList.remove(index);	//roomList에서의 해당 room 인덱스 삭제
+				if(room.getUserList().isEmpty()) {	//userList 비었다면
+					Server.roomList.remove(room);	//roomList에서의 해당 room 삭제
 					//roomListUpdate
-					List<String> roomNameList = new ArrayList<>(); // 방 이름들을 담는 list
-					Server.roomList.forEach(room2 -> {
-						roomNameList.add(room2.getRoomName());
-					});
-					RequestBodyDto<List<String>> updateRoomListDto 
-							= new RequestBodyDto<List<String>>("updateRoomList", roomNameList);
-					Server.serverReceiverList.forEach(con -> {
-						ServerSender.getInstance().send(con.socket, updateRoomListDto);
-					});
+					updateRoomList(false);
 					break;
+				}
+				else {
+					//메소드 분리
+					sendJoinAndQuitRoomMessage(room, username + "님이 퇴장하셨습니다.");	//send quit message
+					updateRoomUserList(room);	//userList update
 				}
 			}
 		}
 	}
 	
 	private void disconnection(String requestBody) {
-		Server.serverReceiverList.remove(Server.serverReceiverList.indexOf(this));
-		
-		//첫화면 connectedUserList
-		List<String> connectedUserList = new ArrayList<>();
-		Server.serverReceiverList.forEach(con -> {
-			connectedUserList.add(con.username);
-		});
-		RequestBodyDto<List<String>> connectedUserListDto = 
-				new RequestBodyDto<List<String>>("updateConnectedUserList", connectedUserList);
-		Server.serverReceiverList.forEach(con -> {
-			ServerSender.getInstance().send(con.socket, connectedUserListDto);
-		});
+		Server.serverReceiverList.remove(this);
+		updateConnectedUserList();
 	}
 }

@@ -182,6 +182,7 @@ public class ClientGUI extends JFrame {
 						return;
 					}
 				}
+				roomNameLabel.setText("[" + roomName + "]");
 				
 				RequestBodyDto<String> requestBodyDto = new RequestBodyDto<String>("createRoom", roomName);
 				ClientSender.getInstance().send(requestBodyDto);
