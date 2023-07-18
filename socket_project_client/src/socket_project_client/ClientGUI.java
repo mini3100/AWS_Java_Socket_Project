@@ -58,6 +58,7 @@ public class ClientGUI extends JFrame {
 	private Socket socket;
 	private boolean isWhisper;
 	private String toUsername;	//귓속말 채팅받는 사람
+	private int index;
 
 	// mainCard
 	private CardLayout mainCardLayout;
@@ -110,15 +111,18 @@ public class ClientGUI extends JFrame {
 
 	private ClientGUI() {
 		isWhisper = false;
-		username = JOptionPane.showInputDialog(mainCardPanel, "아이디를 입력하세요");
-		
-		if (Objects.isNull(username)) {	// x 버튼 눌렀을 때
-			System.exit(0);
-		}
-		if (username.isBlank()) {	// 아이디를 입력하지 않고 확인 눌렀을 때
+		while(true) {
+			username = JOptionPane.showInputDialog(mainCardPanel, "아이디를 입력하세요");
+			
+			if (Objects.isNull(username)) {	// x 버튼 눌렀을 때
+				System.exit(0);
+			}
+			if (!username.isBlank()) {	// 아이디를 입력하지 않고 확인 눌렀을 때
+				break;
+			}
 			JOptionPane.showMessageDialog(mainCardPanel, "아이디를 입력하세요.", "접속 실패", JOptionPane.ERROR_MESSAGE);
-			username = JOptionPane.showInputDialog(mainCardPanel, "아이디를 입력하세요.");
 		}
+		
 		
 		try {
 			// 소켓 연결
@@ -315,9 +319,9 @@ public class ClientGUI extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if(e.getClickCount() == 2) { //더블 클릭
-					toUsername = userListModel.get(userList.getSelectedIndex());
+					index = userList.getSelectedIndex();
+					toUsername = userListModel.get(index);
 					toUserNameLabel.setText(toUsername);
-					
 					isWhisper = true;
 					whisperRadioButton.setSelected(true);
 				}
@@ -367,11 +371,12 @@ public class ClientGUI extends JFrame {
 			if(entireRadioButton.isSelected()){
 				isWhisper = false;
 				userList.clearSelection();
+				index = 0;
 				ClientGUI.getInstance().getToUserNameLabel().setText("전체");
 			}
 			else if(whisperRadioButton.isSelected()){
-				userList.setSelectedIndex(0);
-				toUsername = userListModel.get(0);
+				userList.setSelectedIndex(index);
+				toUsername = userListModel.get(index);
 				ClientGUI.getInstance().getToUserNameLabel().setText(toUsername);
 				
 				isWhisper = true;

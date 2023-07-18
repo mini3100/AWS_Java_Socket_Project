@@ -1,6 +1,7 @@
 package socket_project_server;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -26,6 +27,9 @@ public class Server {
 				serverReceiverList.add(serverReceiver);
 				serverReceiver.start();	//Thread start
 			}
+		} catch (BindException e){
+			System.out.println("[ 서버 실행 오류 ]");
+			System.out.println("실행중인 서버가 있습니다.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
