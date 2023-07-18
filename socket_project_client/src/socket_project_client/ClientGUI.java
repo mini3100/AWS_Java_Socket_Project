@@ -189,6 +189,7 @@ public class ClientGUI extends JFrame {
 				
 				requestBodyDto = new RequestBodyDto<String>("join", roomName);
 				ClientSender.getInstance().send(requestBodyDto);
+				chattingTextArea.setText("");
 				messageTextField.requestFocus();	//채팅방 들어갔을 때 메시지 창에 focus 가도록
 			}
 		});
@@ -209,6 +210,8 @@ public class ClientGUI extends JFrame {
 					entireRadioButton.setSelected(true);
 					RequestBodyDto<String> requestBodyDto = new RequestBodyDto<String>("join", roomName);
 					ClientSender.getInstance().send(requestBodyDto);
+					roomNameLabel.setText("[" + roomName + "]");
+					chattingTextArea.setText("");
 					messageTextField.requestFocus();
 				}
 			}
@@ -285,11 +288,13 @@ public class ClientGUI extends JFrame {
 					SendMessage sendMessage;
 					sendMessage = SendMessage.builder().fromUsername(username)
 								.messageBody(messageTextField.getText()).build();
+					
 					if(isWhisper) {
 						String toUsername = userListModel.get(userList.getSelectedIndex()).replace("(방장)", "");
 						sendMessage = SendMessage.builder().fromUsername(username).toUsername(toUsername)
 								.messageBody(messageTextField.getText()).build();
 					}
+					
 					requestBodyDto = new RequestBodyDto<>("sendMessage", sendMessage);
 					ClientSender.getInstance().send(requestBodyDto);
 					messageTextField.setText(""); // 전송후 텍스트필드 비우기

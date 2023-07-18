@@ -35,10 +35,6 @@ public class ClientReceiver extends Thread {
 		String resource = gson.fromJson(requestBody, RequestBodyDto.class).getResource();
 
 		switch (resource) {
-		case "updateRoomName":
-			String roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
-			ClientGUI.getInstance().getRoomNameLabel().setText("[ " + roomName + " ]");
-			break;
 			
 		case "updateRoomList":
 			List<String> roomList = (List<String>) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
@@ -54,10 +50,6 @@ public class ClientReceiver extends Thread {
 			
 			ClientGUI.getInstance().getConnectedUserListModel().clear();
 			ClientGUI.getInstance().getConnectedUserListModel().addAll(connectedUserList);
-			break;
-			
-		case "clearTextArea":
-			ClientGUI.getInstance().getChattingTextArea().setText("");
 			break;
 			
 		case "showMessage":
