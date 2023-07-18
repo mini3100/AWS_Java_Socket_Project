@@ -78,6 +78,11 @@ public class ServerReceiver extends Thread {
 		username = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody(); // private 전역 변수에 저장
 		// 메소드 분리
 		updateRoomList(true);
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		updateConnectedUserList();
 	}
 	
@@ -143,6 +148,11 @@ public class ServerReceiver extends Thread {
 
 				//메소드로 분리
 				updateRoomUserList(room);	//update UserList
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				sendJoinAndQuitRoomMessage(room, username + "님이 접속했습니다.");		//send joinMessage
 			}
 		});
@@ -233,8 +243,6 @@ public class ServerReceiver extends Thread {
 	
 	private void quit(String requestBody) {
 		String roomName = (String) gson.fromJson(requestBody, RequestBodyDto.class).getBody();
-
-		Iterator<Room> iterator = Server.roomList.iterator();
 		
 		for(Room room : Server.roomList) {	//향상된 for문
 			if (room.getRoomName().equals(roomName)) { // 나가고자 하는 방 이름과 같은가?
@@ -250,6 +258,11 @@ public class ServerReceiver extends Thread {
 				else {
 					//메소드 분리
 					sendJoinAndQuitRoomMessage(room, username + "님이 퇴장하셨습니다.");	//send quit message
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					updateRoomUserList(room);	//userList update
 				}
 			}
