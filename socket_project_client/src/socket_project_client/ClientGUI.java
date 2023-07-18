@@ -185,6 +185,7 @@ public class ClientGUI extends JFrame {
 				
 				requestBodyDto = new RequestBodyDto<String>("join", roomName);
 				ClientSender.getInstance().send(requestBodyDto);
+				messageTextField.requestFocus();	//채팅방 들어갔을 때 메시지 창에 focus 가도록
 			}
 		});
 		chattingRoomListPanel.add(createRoomButton);
@@ -204,6 +205,7 @@ public class ClientGUI extends JFrame {
 					entireRadioButton.setSelected(true);
 					RequestBodyDto<String> requestBodyDto = new RequestBodyDto<String>("join", roomName);
 					ClientSender.getInstance().send(requestBodyDto);
+					messageTextField.requestFocus();
 				}
 			}
 		});
@@ -347,8 +349,10 @@ public class ClientGUI extends JFrame {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				RequestBodyDto<String> quitRoomRequestBodyDto = new RequestBodyDto<String>("quit", roomName);
-				ClientSender.getInstance().send(quitRoomRequestBodyDto);
+				if(chattingRoomPanel.isShowing()) {
+					RequestBodyDto<String> quitRoomRequestBodyDto = new RequestBodyDto<String>("quit", roomName);
+					ClientSender.getInstance().send(quitRoomRequestBodyDto);					
+				}
 				
 				RequestBodyDto<String> disconnectionRequestBodyDto = new RequestBodyDto<String>("disconnection", username);
 				ClientSender.getInstance().send(disconnectionRequestBodyDto);
