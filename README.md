@@ -32,8 +32,8 @@
 
 ## 개발자
 - 개발자 이름: 정가영
-- 이메일: mini3100@naver.com
+- 이메일: mini011029@gmail.com
 - 개발자 이름: 변정민
-- 이메일: bjm3305@naver.com
+- 이메일: bjm3305@gmail.com
 - 개발자 이름: 우주영
-- 이메일: dlsrtyex63@gmail.com
+- 이메일: aiden0x1a6@gmail.com
